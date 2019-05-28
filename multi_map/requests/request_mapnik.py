@@ -1,10 +1,17 @@
 
+import os
 from xml.etree import ElementTree
 
 try:
     import mapnik
 except ImportError:
     import mapnik2 as mapnik
+
+import ogcserver
+from ogcserver.WMS import BaseWMSFactory
+
+from pkg_resources import resource_filename
+configfile = resource_filename(ogcserver.__name__, 'default.conf')
 
 
 ########################################################################
@@ -45,7 +52,20 @@ class Protocol(object):
         get map on mapnik xml
         mapnik.load_map_from_string()
         """
-        pass
+        try:
+            if os.path.isfile(content):
+                wms_factory = BaseWMSFactory(configfile)
+                wms_factory.loadXML(content)
+                wms_factory.finalize()
+            else:
+                raise # map file content in DB: to do
+        except:
+            self.logging(
+                0, 
+                "ERROR: Content {} not init as Mapnik FILE".format(content)
+            )
+        else:
+            return wms_factory
     
     def request_mapnik(self, env, mapdata, que=None):
         """

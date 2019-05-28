@@ -4,11 +4,17 @@ from multi_map import LightAPI
 
 if __name__ == "__main__":
     db_host = sys.argv[1]
-    maps_path = "{}/GIS/mapserver/debug/all_maps/fs".format(os.environ["HOME"])
+    mapscript_path = "{}/GIS/mapserver/debug/all_maps/fs".format(os.environ["HOME"])
+    mapnik_path = "{}/GIS/mapserver/debug/all_maps/mapnik".format(os.environ["HOME"])
     srcs = [
         {
             "type": "fs",
-            "path": maps_path,
+            "path": mapnik_path,
+            "enable": True,
+        }, 
+        {
+            "type": "fs",
+            "path": mapscript_path,
             "enable": True,
         }, 
         {
