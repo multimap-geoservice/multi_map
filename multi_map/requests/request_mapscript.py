@@ -67,7 +67,7 @@ class Protocol(object):
         """
         try:
             if os.path.isfile(content):
-                pub_map = mapscript.mapObj(content)
+                mapfile = mapscript.mapObj(content)
             else:
                 raise # map file content in DB: to do
         except:
@@ -76,7 +76,7 @@ class Protocol(object):
                 "ERROR: Content {} not init as Map FILE".format(content)
             )
         else:
-            return self.edit_mapscript(map_name, pub_map())
+            return self.add_onlineresource(map_name, mapfile)
     
     def get_mapjson(self, map_name, content):
         """
@@ -96,9 +96,9 @@ class Protocol(object):
                 "ERROR: Content {} not init as Map JSON".format(content)
             )
         else:
-            return self.edit_mapscript(map_name, pub_map())
+            return self.add_onlineresource(map_name, pub_map())
      
-    def edit_mapscript(self, map_name, content):
+    def add_onlineresource(self, map_name, content):
         """
         edit requests resources in mapscript object
         """
@@ -125,12 +125,12 @@ class Protocol(object):
             pass
     
         content_type = mapscript.msIO_stripStdoutBufferContentType()
-        result = mapscript.msIO_getStdoutBufferBytes()
-        out_req = (content_type, result)
+        content = mapscript.msIO_getStdoutBufferBytes()
+        out_response = (content_type, content)
         if que is None:
-            return out_req
+            return out_response
         else:
-            que.put(out_req)
+            que.put(out_response)
             
     def get_metadata(self, map_cont):
         matadata_keys = map_cont.web.metadata.keys() 
