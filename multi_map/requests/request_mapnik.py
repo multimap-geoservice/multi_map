@@ -1,5 +1,6 @@
 
 import os
+import importlib
 from xml.etree import ElementTree
 from pkg_resources import resource_filename
 
@@ -19,16 +20,6 @@ from ogcserver.configparser import SafeConfigParser
 from ogcserver.wms111 import ExceptionHandler as ExceptionHandler111
 from ogcserver.wms130 import ExceptionHandler as ExceptionHandler130
 from ogcserver.exceptions import OGCException
-
-
-def do_import(module):
-    """
-    Makes setuptools namespaces work
-    """
-    moduleobj = None
-    exec 'import %s' % module 
-    exec 'moduleobj=%s' % module
-    return moduleobj
 
 
 ########################################################################
@@ -54,8 +45,8 @@ class Protocol(object):
                 },
         }
         # Load OGCServver config
-        ogcserver = do_import('ogcserver')
-        self.ogc_configfile = resource_filename(ogcserver.__name__, 'default.conf')
+        self.ogcserver = importlib.import_module('ogcserver')
+        self.ogc_configfile = resource_filename(self.ogcserver.__name__, 'default.conf')
         ogcconf = SafeConfigParser()
         ogcconf.readfp(open(self.ogc_configfile))
         self.ogcconf = ogcconf
@@ -131,11 +122,7 @@ class Protocol(object):
                     request = 'GetCapabilities'
             if reqparams.has_key('service'):
                 del reqparams['service']
-            try:
-                ogcserver = do_import('ogcserver')
-            except:
-                raise OGCException('Unsupported service "%s".' % service)
-            ServiceHandlerFactory = getattr(ogcserver, service).ServiceHandlerFactory
+            ServiceHandlerFactory = getattr(self.ogcserver, service).ServiceHandlerFactory
             servicehandler = ServiceHandlerFactory(
                 self.ogcconf, 
                 mapdata, 

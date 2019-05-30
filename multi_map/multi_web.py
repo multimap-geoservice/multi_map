@@ -1,15 +1,14 @@
 
 import os
+import imp
 import time
+import importlib
 from multiprocessing import Process, Queue
 from wsgiref.simple_server import make_server, WSGIServer
 from SocketServer import ThreadingMixIn
 
 from interface import pgsqldb
-from requests import (
-    request_mapscript, 
-    request_mapnik
-) 
+
 
 ########################################################################
 class ThreadingWSGIServer(ThreadingMixIn, WSGIServer): 
@@ -114,6 +113,14 @@ class MultiWEB(object):
                 "enable": bool,
             }
         }
+       
+        # default web params
+        self.wsgi_host = host
+        self.wsgi_port = port
+        self.url = "{0}:{1}".format(base_url, port)
+        self.maps = {}
+
+        # add map requests 
         """
         Mpa Formats for serialization:
         key: name
@@ -123,18 +130,10 @@ class MultiWEB(object):
         "metadata": return matadata dict
         "enable": bool flag for use in serialize
         """
-        self.serial_formats = {}
-       
-        # default web params
-        self.wsgi_host = host
-        self.wsgi_port = port
-        self.url = "{0}:{1}".format(base_url, port)
-        self.maps = {}
-
-        # add map requests 
+        #self.serial_formats = {}
         self.map_requests = [
-            request_mapscript, 
-            request_mapnik
+            'multi_map.requests.request_mapscript', 
+            'multi_map.requests.request_mapnik'
         ]
         self.init_map_requests() 
 
@@ -150,11 +149,30 @@ class MultiWEB(object):
                 print(outdata)
 
     def init_map_requests(self):
+        self.serial_formats = {}
         self.map_req_objs = []
-        for map_req in self.map_requests:
-            protcol = map_req.Protocol(self.url, self.logging)
-            self.serial_formats.update(protcol.proto_schema)
-            self.map_req_objs.append(protcol)
+        for req_name in self.map_requests:
+            try:
+                if os.path.isfile(req_name):
+                    map_req = imp.load_source(
+                        os.path.basename(req_name), 
+                        os.path.abspath(req_name)
+                    )
+                else:
+                    map_req = importlib.import_module(req_name)
+                protcol = map_req.Protocol(self.url, self.logging)
+                proto_schema = protcol.proto_schema 
+            except Exception as err:
+                self.logging(
+                    0,
+                    "ERROR: Request Module:'{0}' is not Loaded\nsys err: {1}".format(
+                        req_name, 
+                        err
+                    )
+                )
+            else:
+                self.serial_formats.update(proto_schema)
+                self.map_req_objs.append(protcol)
              
     def _detect_cont_format(self, cont):
         """
