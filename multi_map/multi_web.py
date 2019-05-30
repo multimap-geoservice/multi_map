@@ -61,6 +61,11 @@ class MultiWEB(object):
     ]
     # invariable map name list
     invariable_name = []
+    # default map requests list
+    map_requests = [
+        'multi_map.requests.request_mapscript', 
+        'multi_map.requests.request_mapnik'
+    ]
     
     #----------------------------------------------------------------------
     def __init__(self, port=3007, host='0.0.0.0', base_url="http://localhost", srcs = []):
@@ -131,10 +136,6 @@ class MultiWEB(object):
         "enable": bool flag for use in serialize
         """
         #self.serial_formats = {}
-        self.map_requests = [
-            'multi_map.requests.request_mapscript', 
-            'multi_map.requests.request_mapnik'
-        ]
         self.init_map_requests() 
 
         if self.fullserial:
