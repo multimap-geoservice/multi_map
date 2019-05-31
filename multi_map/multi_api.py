@@ -166,7 +166,8 @@ class LightAPI(MultiWEB):
             out = copy.deepcopy(src_out)
             for src in out:
                 if src.has_key('query'):
-                    src['query'] = src['query'].split('\n')
+                    if not isinstance(src['query'], list):
+                        src['query'] = src['query'].split('\n')
         return {
             "sources": out,
         }

@@ -114,7 +114,7 @@ class MultiWEB(object):
                 "preserial": self._preserial_pgsql,
                 "subserial": self._subserial_pgsql,
                 "connect": dict,
-                "query": (str, unicode),
+                "query": (list, str, unicode),
                 "enable": bool,
             }
         }
@@ -236,12 +236,16 @@ class MultiWEB(object):
         """
         Find names for serialization all pgsql sources
         """
+        if isinstance(kwargs['query'], list):
+            query = '\n'.join(kwargs['query'])
+        else:
+            query = kwargs['query']
         SQL = """
         select query.map_name
         from (
         {}
         ) as query
-        """.format(kwargs['query'])
+        """.format(query)
         
         psql = pgsqldb(**kwargs['connect'])
         psql.sql(SQL)
@@ -262,7 +266,10 @@ class MultiWEB(object):
         """
         subserializator for pgsql
         """
-        
+        if isinstance(kwargs['query'], list):
+            query = '\n'.join(kwargs['query'])
+        else:
+            query = kwargs['query']
         SQL = """
         select query.map_cont
         from (
@@ -270,7 +277,7 @@ class MultiWEB(object):
         ) as query
         where query.map_name = '{1}'
         limit 1
-        """.format(kwargs['query'], map_name)
+        """.format(query, map_name)
         
         psql = pgsqldb(**kwargs['connect'])
         psql.sql(SQL)
