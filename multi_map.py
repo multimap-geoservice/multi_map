@@ -3,9 +3,11 @@
 import os
 import sys
 import json
+import signal
 import argparse
 
 from multi_map import LightAPI
+
 
 ########################################################################
 class Server(object):
@@ -39,6 +41,11 @@ class Server(object):
         
         self.set_pid()
         self.set_log()
+        
+        signal.signal(signal.SIGTERM, self.signal_handler)
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGQUIT, self.signal_handler)
+        signal.signal(signal.SIGHUP, self.signal_handler)
 
     def set_config(self):
         self.config = False
@@ -67,7 +74,7 @@ class Server(object):
                         err
                     )
                 else:
-                    self.pid = id_proc
+                    self.pid = os.path.abspath(self.args.pid_file)
 
     def set_log(self):
         self.log = False
@@ -83,6 +90,25 @@ class Server(object):
                     )
                 else:
                     self.log = os.path.abspath(self.args.log_file)
+   
+    def signal_text(self, text):
+        if self.log:
+            with open(self.log, "a") as file_:  
+                file_.write(text)
+        else:
+            print (text)
+    
+    def signal_handler(self, signum, frame):
+        # stop
+        if signum in (2, 3, 15):
+            if self.pid:
+                os.remove(self.pid)
+            self.signal_text("Stop service - PID:{}".format(os.getpid()))
+            sys.exit(0)
+        # reload
+        if signum == 1:
+            self.signal_text("Reload service - PID:{}".format(os.getpid()))
+            #self.web.serial_src = self.config["sources"]
     
     def start(self):
         # Add requests 
@@ -117,7 +143,10 @@ class Server(object):
         # Start
         self.web()
         
+    def __call__(self):
+        self.start()
+        
 
 if __name__ == "__main__":
     server = Server()
-    server.start()
+    server()
