@@ -34,5 +34,6 @@
     "port":3007,
     "base_url":"http://localhost",
     "multi":true,
-    "debug":2
+    "debug":2,
+    "timeout":600
 }
