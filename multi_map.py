@@ -6,6 +6,7 @@ import json
 import signal
 import psutil
 import argparse
+import daemon
 
 from multi_map import LightAPI
 
@@ -21,6 +22,7 @@ class Server(object):
     2 - Source key in Config file not found
     3 - Port allredy use
     4 - Server allredy started on PID
+    5 - Error daemon mode
     """
     item_opt_args = ["host", "port", "base_url"]
     item_opt_vars = ["multi", "debug"]
@@ -44,7 +46,7 @@ class Server(object):
         Base URL (optionaly config).
         ''')
         parser.add_argument('-M', '--multi', dest='multi', type=bool, help='''
-        Multi Process mode (optionaly config).
+        Multi Process mode 0,1 (optionaly config).
         ''')
         parser.add_argument('-D', '--debug', dest='debug', type=int, help='''
         Debug mode 0,1,2,3 (optionaly config).
@@ -53,10 +55,13 @@ class Server(object):
         Timeout to clean serialized maps (optionaly config).
         ''')
         parser.add_argument('-p', '--pid', dest='pid_file', type=str, help='''
-        Path to the pid file (optionaly).
+        Path to the pid file (optionaly, need for daemon mode).
         ''')
         parser.add_argument('-l', '--log', dest='log_file', type=str, help='''
-        Path to the log file (optionaly).
+        Path to the log file (optionaly, need for daemon mode).
+        ''')
+        parser.add_argument('-d', '--daemon', action='store_true', help='''
+        Satrt as daemon mode (optionaly).
         ''')
         self.args = parser.parse_args()
         
@@ -66,15 +71,12 @@ class Server(object):
             parser.print_help()
             sys.exit(1)
         
-        self.set_pid()
-        self.set_log()
-        
-        # stop
-        signal.signal(signal.SIGTERM, self.signal_handler)
-        signal.signal(signal.SIGINT, self.signal_handler)
-        signal.signal(signal.SIGQUIT, self.signal_handler)
-        # reload
-        signal.signal(signal.SIGHUP, self.signal_handler)
+    def loging(self, text):
+        if self.log:
+            with open(self.log, "a") as file_:  
+                file_.write(text)
+        else:
+            print (text)
 
     def set_config(self):
         self.config = False
@@ -157,28 +159,26 @@ class Server(object):
                     )
                 else:
                     self.log = os.path.abspath(self.args.log_file)
-   
-    def signal_text(self, text):
-        if self.log:
-            with open(self.log, "a") as file_:  
-                file_.write(text)
-        else:
-            print (text)
-    
+                    
     def signal_handler(self, signum, frame):
         # stop
         if signum in (2, 3, 15):
-            if self.pid:
-                os.remove(self.pid)
-            self.signal_text("Stop service - PID:{}".format(os.getpid()))
-            sys.exit(0)
+            self.stop()
         # reload
         if signum == 1:
-            self.signal_text("Reload service - PID:{}".format(os.getpid()))
+            self.loging("Reload service - PID:{}".format(os.getpid()))
             # to do
             #self.web.serial_src = self.config["sources"]
     
     def start(self):
+
+        # signals stop
+        signal.signal(signal.SIGTERM, self.signal_handler)
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGQUIT, self.signal_handler)
+        # signal reload
+        signal.signal(signal.SIGHUP, self.signal_handler)
+
         # Test use port
         if self.item_args.has_key("port"):
             port = self.item_args["port"]
@@ -196,6 +196,17 @@ class Server(object):
                 net_procs[port]
             )
             sys.exit(3)
+
+        # util options            
+        self.set_pid()
+        self.set_log()
+        
+        # demonize
+        if self.args.daemon:
+            if not self.log or not self.pid:
+                print "ERROR: For daemon mode need use --log  and --pid options"
+                parser.print_help()
+                sys.exit(5)
         
         # Add requests 
         self.lapi = LightAPI
@@ -215,11 +226,23 @@ class Server(object):
         
         # Start
         self.web()
+    
+    def stop(self):
+        if self.pid:
+            os.remove(self.pid)
+        self.loging("Stop service - PID:{}".format(os.getpid()))
+        sys.exit(0)
         
     def __call__(self):
         self.start()
-        
+     
+    def __dell__(self):   
+        self.stop()
 
 if __name__ == "__main__":
     server = Server()
-    server()
+    if server.args.daemon:
+        with daemon.DaemonContext():
+            server()
+    else:
+        server()
