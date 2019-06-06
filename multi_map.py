@@ -117,7 +117,7 @@ class Server(object):
                     all_defaults.update(self.item_opt_vars)
                     all_defaults.update(self.item_opt_util)
                     for key in all_defaults:
-                        if self.args.__dict__[key]:
+                        if self.args.__dict__[key] is not None:
                             self.config[key] = self.args.__dict__[key]
                         elif not self.config.has_key(key):
                             self.config[key] = all_defaults[key]
@@ -176,7 +176,7 @@ class Server(object):
             if os.path.isdir(os.path.dirname(os.path.abspath(self.args.log_file))):
                 try:
                     with open(self.args.log_file, "w") as file_:  
-                        file_.write("Start in PID:{}\n".format(os.getpid()))
+                        file_.write("Start WEB service in PID: {}\n".format(os.getpid()))
                 except Exception as err:
                     print "ERROR: Log file '{0}' is not create\nsys error:{1}".format(
                         self.args.log_file, 
@@ -191,29 +191,32 @@ class Server(object):
             self.stop()
         # reload
         if signum == 1:
-            self.loging("Reload service - PID:{}".format(os.getpid()))
+            self.loging("Reload service - PID: {}".format(os.getpid()))
             # to do
             #self.web.serial_src = self.config["sources"]
             
     def sheduler(self, que):
-        if self.config["timeout"]:
-            que.put(os.getpid())
-            self.loging(
-                "INFO:Sheduler Loop {} Second Start\n".format(self.config["timeout"])
+        pid = os.getpid()
+        que.put(pid)
+        self.loging(
+            "Start Sheduler Loop for {0} Second in PID: {1}\n".format(
+                self.config["timeout"], 
+                pid
             )
-            request = "{0}:{1}/api?timeout&sec={2}".format(
-                self.config["base_url"], 
-                self.config["port"], 
-                self.config["timeout"]
-            )
-            while True:
-                sleep(self.config["timeout"]/2)
+        )
+        request = "{0}:{1}/api?timeout&sec={2}".format(
+            self.config["base_url"], 
+            self.config["port"], 
+            self.config["timeout"]
+        )
+        while True:
+            sleep(self.config["timeout"]/2)
+            try:
                 get(request)
-        else:
-            self.loging("INFO: Sheduler is not Start/n")
+            except:
+                self.loging("ERROR SHEDULER: API is not resolved\n")
     
     def start(self):
-
         # signals stop
         signal.signal(signal.SIGTERM, self.signal_handler)
         signal.signal(signal.SIGINT, self.signal_handler)
@@ -233,19 +236,20 @@ class Server(object):
             if my.pid is not None
         }
         if net_procs.has_key(port):
-            self.loging(
+            raise Exception(
                 "ERROR: Port: {0} allredy use from Process: {1}".format(
                     port, 
                     net_procs[port]
                 )
             )
-            sys.exit(3)
 
         # util options            
         self.set_pid()
+        if self.args.daemon and not self.pid:
+            raise Exception("ERROR: pid file is not create")
         self.set_log()
-        
-        #
+        if self.args.daemon and not self.log:
+            raise Exception("ERROR: log file is not create")
         
         # Add requests 
         self.lapi = LightAPI
@@ -263,24 +267,26 @@ class Server(object):
             self.web.log = self.log
             
         # Sheduler
-        que = Queue()
-        sheduler = Process(
-            target=self.sheduler, 
-            name="sheduler", 
-            args=(que, )
-        )
-        sheduler.start()
-        self.pid_sheduler = que.get()
+        if self.config["timeout"]:
+            que = Queue()
+            sheduler = Process(
+                target=self.sheduler, 
+                name="sheduler", 
+                args=(que, )
+            )
+            sheduler.start()
+            self.pid_sheduler = que.get()
+        else:
+            self.loging("INFO: Sheduler is not Start\n")
             
         # Start
         self.web()
-        sheduler.join()
         
     def stop(self):
         if self.pid:
             if os.path.isfile(self.pid):
                 os.remove(self.pid)
-        self.loging("Stop service - PID:{}\n".format(os.getpid()))
+        self.loging("Stop Process on PID: {}\n".format(os.getpid()))
         if self.__dict__.has_key("pid_sheduler"):
             os.kill(self.pid_sheduler, signal.SIGTERM)
         sys.exit(0)
@@ -295,7 +301,7 @@ class Server(object):
 if __name__ == "__main__":
     server = Server()
     if server.args.daemon:
-        with daemon.DaemonContext():
+        with daemon.DaemonContext(stderr=open(server.args.log_file, 'a')):
             server()
     else:
         server()
