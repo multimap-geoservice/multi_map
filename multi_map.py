@@ -7,6 +7,9 @@ import signal
 import psutil
 import argparse
 import daemon
+from requests import get
+from time import sleep
+from multiprocessing import Process, Queue
 
 from multi_map import LightAPI
 
@@ -24,9 +27,18 @@ class Server(object):
     4 - Server allredy started on PID
     5 - Error daemon mode
     """
-    item_opt_args = ["host", "port", "base_url"]
-    item_opt_vars = ["multi", "debug"]
-    item_opt_util = ["timeout"]
+    item_opt_args = {
+        "host": "0.0.0.0",
+        "port": 3007,
+        "base_url": "http://localhost",
+    }
+    item_opt_vars = {
+        "multi": True, 
+        "debug": 2,
+    }
+    item_opt_util = {
+        "timeout": 600,
+    }
 
     #----------------------------------------------------------------------
     def __init__(self):
@@ -65,12 +77,20 @@ class Server(object):
         ''')
         self.args = parser.parse_args()
         
+        # config
         self.set_config()
         if not self.config:
             print "ERROR: CONFIG_FILE not found"
             parser.print_help()
             sys.exit(1)
-        
+
+        # demonize args
+        if self.args.daemon:
+            if not self.args.log_file or not self.args.pid_file:
+                print "ERROR: For daemon mode need use --log  and --pid options"
+                parser.print_help()
+                sys.exit(5)
+
     def loging(self, text):
         if self.log:
             with open(self.log, "a") as file_:  
@@ -92,9 +112,15 @@ class Server(object):
                     )
                 else:
                     # Add optionaly config commstrings
-                    for key in self.item_opt_args + self.item_opt_vars + self.item_opt_util:
+                    all_defaults = {}
+                    all_defaults.update(self.item_opt_args)
+                    all_defaults.update(self.item_opt_vars)
+                    all_defaults.update(self.item_opt_util)
+                    for key in all_defaults:
                         if self.args.__dict__[key]:
                             self.config[key] = self.args.__dict__[key]
+                        elif not self.config.has_key(key):
+                            self.config[key] = all_defaults[key]
                     
                     self.item_args = {}
                     # Add sources
@@ -106,8 +132,7 @@ class Server(object):
                         
                     # Update item optionaly args 
                     for key in self.item_opt_args:
-                        if self.config.has_key(key):
-                            self.item_args[key] = self.config[key]
+                        self.item_args[key] = self.config[key]
                     
     def set_pid(self):
         id_proc = os.getpid()
@@ -169,6 +194,23 @@ class Server(object):
             self.loging("Reload service - PID:{}".format(os.getpid()))
             # to do
             #self.web.serial_src = self.config["sources"]
+            
+    def sheduler(self, que):
+        if self.config["timeout"]:
+            que.put(os.getpid())
+            self.loging(
+                "INFO:Sheduler Loop {} Second Start\n".format(self.config["timeout"])
+            )
+            request = "{0}:{1}/api?timeout&sec={2}".format(
+                self.config["base_url"], 
+                self.config["port"], 
+                self.config["timeout"]
+            )
+            while True:
+                sleep(self.config["timeout"]/2)
+                get(request)
+        else:
+            self.loging("INFO: Sheduler is not Start/n")
     
     def start(self):
 
@@ -183,7 +225,7 @@ class Server(object):
         if self.item_args.has_key("port"):
             port = self.item_args["port"]
         else:
-            port = 3007
+            port = self.item_opt_args["port"]
         net_procs = {
             my.laddr[1]: my.pid
             for my 
@@ -191,9 +233,11 @@ class Server(object):
             if my.pid is not None
         }
         if net_procs.has_key(port):
-            print "ERROR: Port: {0} allredy use from Process: {1}".format(
-                port, 
-                net_procs[port]
+            self.loging(
+                "ERROR: Port: {0} allredy use from Process: {1}".format(
+                    port, 
+                    net_procs[port]
+                )
             )
             sys.exit(3)
 
@@ -201,12 +245,7 @@ class Server(object):
         self.set_pid()
         self.set_log()
         
-        # demonize
-        if self.args.daemon:
-            if not self.log or not self.pid:
-                print "ERROR: For daemon mode need use --log  and --pid options"
-                parser.print_help()
-                sys.exit(5)
+        #
         
         # Add requests 
         self.lapi = LightAPI
@@ -217,20 +256,33 @@ class Server(object):
                 
         # Update item optionaly vars 
         for key in self.item_opt_vars:
-            if self.config.has_key(key):
-                self.web.__dict__[key] = self.config[key]
+            self.web.__dict__[key] = self.config[key]
 
         # Logging
         if self.log:
             self.web.log = self.log
-        
+            
+        # Sheduler
+        que = Queue()
+        sheduler = Process(
+            target=self.sheduler, 
+            name="sheduler", 
+            args=(que, )
+        )
+        sheduler.start()
+        self.pid_sheduler = que.get()
+            
         # Start
         self.web()
-    
+        sheduler.join()
+        
     def stop(self):
         if self.pid:
-            os.remove(self.pid)
-        self.loging("Stop service - PID:{}".format(os.getpid()))
+            if os.path.isfile(self.pid):
+                os.remove(self.pid)
+        self.loging("Stop service - PID:{}\n".format(os.getpid()))
+        if self.__dict__.has_key("pid_sheduler"):
+            os.kill(self.pid_sheduler, signal.SIGTERM)
         sys.exit(0)
         
     def __call__(self):
@@ -238,6 +290,7 @@ class Server(object):
      
     def __dell__(self):   
         self.stop()
+
 
 if __name__ == "__main__":
     server = Server()

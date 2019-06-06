@@ -2,3 +2,4 @@ python-mapscript-publisher
 python-ogcserver
 python-psutil
 python-daemon
+python-requests
