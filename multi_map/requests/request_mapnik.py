@@ -159,8 +159,6 @@ class Protocol(object):
             else:
                 eh = ExceptionHandler111(self.debug,base,self.home_html)
             response = eh.getresponse(reqparams)
-            #kostyl!!!!
-            response.content_type = "text/xml"
             
         out_response = (response.content_type, response.content)
         if que is None:
