@@ -367,7 +367,8 @@ class MultiWEB(object):
     def application(self, env, start_response):
         
         # find map name
-        map_name = env['PATH_INFO'].split('/')[-1]
+        #map_name = env['PATH_INFO'].split('/')[-1]
+        map_name = "/".join(env['PATH_INFO'].split('/')[1:])
         
         # text debug
         if self.debug >= 1:
