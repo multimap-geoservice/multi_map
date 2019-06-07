@@ -8,7 +8,7 @@ import psutil
 import argparse
 import daemon
 from requests import get
-from time import sleep
+from time import sleep, ctime
 from multiprocessing import Process, Queue
 
 from multi_map import LightAPI
@@ -212,9 +212,14 @@ class Server(object):
         while True:
             sleep(self.config["timeout"]/2)
             try:
-                get(request)
+                response = get(request)
             except:
-                self.loging("ERROR SHEDULER: API is not resolved\n")
+                self.loging("SHEDULER ERROR: API is not resolved\n")
+            else:
+                if response.json().get('result', False):
+                    self.loging(
+                        "SHEDULER OK: {}\n".format(ctime())
+                    )
     
     def start(self):
         # signals stop
