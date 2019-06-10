@@ -3,6 +3,9 @@
         "multi_map.requests.request_mapscript",
         "multi_map.requests.request_mapnik"
     ],
+    "configs":{
+        "multi_map.requests.request_mapnik": "ogcserver.conf"
+    },
     "sources":[
         {
             "type": "fs",

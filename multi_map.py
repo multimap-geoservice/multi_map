@@ -260,6 +260,8 @@ class Server(object):
         self.lapi = LightAPI
         if self.config.has_key("requests"):
             self.lapi.map_requests = self.config["requests"]
+        if self.config.has_key("configs"):
+            self.lapi.req_configs = self.config["configs"]
        
         self.web = self.lapi(**self.item_args)
                 

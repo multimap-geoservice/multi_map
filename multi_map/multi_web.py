@@ -66,6 +66,8 @@ class MultiWEB(object):
         'multi_map.requests.request_mapscript', 
         'multi_map.requests.request_mapnik'
     ]
+    # config files for map requests
+    req_configs = {}
     
     #----------------------------------------------------------------------
     def __init__(self, port=3007, host='0.0.0.0', base_url="http://localhost", srcs = []):
@@ -161,7 +163,12 @@ class MultiWEB(object):
                     )
                 else:
                     map_req = importlib.import_module(req_name)
-                protcol = map_req.Protocol(self.url, self.logging)
+                config = self.req_configs.get(req_name, '')
+                protcol = map_req.Protocol(
+                    self.url, 
+                    self.logging, 
+                    config
+                )
                 proto_schema = protcol.proto_schema 
             except Exception as err:
                 self.logging(

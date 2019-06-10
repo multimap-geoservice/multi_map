@@ -30,7 +30,7 @@ class Protocol(object):
     """
     
     #----------------------------------------------------------------------
-    def __init__(self, url, logging):
+    def __init__(self, url, logging, config=''):
         
         self.url = url 
         self.home_html = None
@@ -46,7 +46,12 @@ class Protocol(object):
         }
         # Load OGCServver config
         self.ogcserver = importlib.import_module('ogcserver')
-        self.ogc_configfile = resource_filename(self.ogcserver.__name__, 'default.conf')
+        if os.path.isfile(config):
+            self.ogc_configfile = config
+        else:
+            self.ogc_configfile = resource_filename(
+                self.ogcserver.__name__, 'default.conf'
+            )
         ogcconf = SafeConfigParser()
         ogcconf.readfp(open(self.ogc_configfile))
         self.ogcconf = ogcconf

@@ -16,7 +16,7 @@ class Protocol(object):
     """
     
     #----------------------------------------------------------------------
-    def __init__(self, url, logging):
+    def __init__(self, url, logging, config=''):
        
         self.url = url 
         self.logging = logging
