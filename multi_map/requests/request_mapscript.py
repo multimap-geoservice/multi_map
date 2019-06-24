@@ -105,10 +105,8 @@ class Protocol(object):
         if isinstance(content, mapscript.mapObj):
             if map_name != "":
                 map_url = "{0}/{1}".format(self.url, map_name)
-                if "wms_enable_request" in content.web.metadata.keys():
-                    content.web.metadata.set("wms_onlineresource", map_url)
-                if "wfs_enable_request" in content.web.metadata.keys():
-                    content.web.metadata.set("wfs_onlineresource", map_url)
+                content.web.metadata.set("wms_onlineresource", map_url)
+                content.web.metadata.set("wfs_onlineresource", map_url)
                 return content
     
     def request_mapscript(self, env, mapdata, que=None):
