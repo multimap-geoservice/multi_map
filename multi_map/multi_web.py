@@ -104,6 +104,14 @@ class MultiWEB(object):
             "query": "select name as map_name, content as map_cont from table"
         }
         "query": select two column as: map_name, map_cont
+        ----------------------------
+        For tmp(fs|pgsql) add key: 
+            'template' (mapscrip_publisher only) -
+                str, unicode - path to mapscript_publisher template of mapscript
+                dict - this mapscript_publisher template of mapscript
+            'ext' - file extension for 'fs' source geospatial file (gif, shp, and every)
+            
+        This mapscript_publisher template only for one file - specify in VARS[data]
         """
         self.serial_tps = {
             "fs": {
@@ -112,11 +120,27 @@ class MultiWEB(object):
                 "path": (str, unicode),
                 "enable": bool,
             }, 
+            "tmpfs": {
+                "preserial": self._preserial_fs,
+                "subserial": self._subserial_tmpfs,
+                "path": (str, unicode),
+                "ext": (list, str, unicode),
+                "template": (dict, str, unicode),
+                "enable": bool,
+            }, 
             "pgsql": {
                 "preserial": self._preserial_pgsql,
                 "subserial": self._subserial_pgsql,
                 "connect": dict,
                 "query": (list, str, unicode),
+                "enable": bool,
+            }, 
+            "tmppgsql": {
+                "preserial": self._preserial_pgsql,
+                "subserial": self._subserial_tmppgsql,
+                "connect": dict,
+                "query": (list, str, unicode),
+                "template": (dict, str, unicode),
                 "enable": bool,
             }
         }
@@ -239,6 +263,27 @@ class MultiWEB(object):
                         )
                         return cont_format, content
                 
+    def _subserial_tmpfs(self, map_name, **kwargs):
+        """
+        subserializator template for fs source list
+        """
+        _dir = kwargs['path']
+        if isinstance(kwargs['ext'], (list, tuple)):
+            exts = kwargs['ext']
+        else:
+            exts = [kwargs['ext']]
+        for _file in os.listdir(_dir):
+            for ext in exts:
+                if _file == "{0}.{1}".format(map_name, ext):
+                    content = "{0}/{1}".format(_dir, _file)
+                    cont_format = self._detect_cont_format(content)
+                    if cont_format is not None:
+                        self.logging(
+                            2,
+                            "INFO: In Dir:{0}, load Map File {1}".format(_dir, _file)
+                        )
+                        return cont_format, content
+
     def _preserial_pgsql(self, **kwargs):
         """
         Find names for serialization all pgsql sources
@@ -303,6 +348,40 @@ class MultiWEB(object):
                 )
                 return cont_format, content
     
+    def _subserial_tmppgsql(self, map_name, **kwargs):
+        """
+        subserializator template for pgsql source list
+        """
+        if isinstance(kwargs['query'], list):
+            query = '\n'.join(kwargs['query'])
+        else:
+            query = kwargs['query']
+        SQL = """
+        select query.map_cont
+        from (
+        {0}
+        ) as query
+        where query.map_name = '{1}'
+        limit 1
+        """.format(query, map_name)
+        
+        psql = pgsqldb(**kwargs['connect'])
+        psql.sql(SQL)
+        content = psql.fetchone()
+        psql.close()
+        if content is not None:
+            content = content[0]
+            cont_format = self._detect_cont_format(content)
+            if cont_format is not None:
+                self.logging(
+                    2,
+                    "INFO: From Database:{0}, load Map {1}".format(
+                        kwargs['connect']['dbname'],
+                        map_name
+                    )
+                )
+                return cont_format, content
+
     def full_serializer(self, replace=True):
         """
         Full serialization all sources map
