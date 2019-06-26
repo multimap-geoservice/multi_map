@@ -5,7 +5,7 @@ import json
 
 import mapscript
 
-from map_pub import PubMap
+from map_pub import BuildMap, PubMap
 
 
 ########################################################################
@@ -24,6 +24,13 @@ class Protocol(object):
             "json": {
                 "test": self.is_json,
                 "get": self.get_mapjson,
+                "request": self.request_mapscript,
+                "metadata": self.get_metadata,
+                "enable": True,
+                },
+            "maptemp": {
+                "test": self.is_json,
+                "get": self.get_maptemp,
                 "request": self.request_mapscript,
                 "metadata": self.get_metadata,
                 "enable": True,
@@ -98,6 +105,26 @@ class Protocol(object):
         else:
             return self.add_onlineresource(map_name, pub_map())
      
+    def get_maptemp(self, map_name, content):
+        """
+        build json template and get map for source file
+        BuildMap() and PubMap()
+        """
+        try:
+            if os.path.isfile(content):
+                pub_map = PubMap()
+                pub_map.load_json(content)
+            else:
+                content = ast.literal_eval(content)
+                pub_map = PubMap(content)
+        except:
+            self.logging(
+                0, 
+                "ERROR: Content {} not init as Map JSON".format(content)
+            )
+        else:
+            return self.add_onlineresource(map_name, pub_map())
+
     def add_onlineresource(self, map_name, content):
         """
         edit requests resources in mapscript object

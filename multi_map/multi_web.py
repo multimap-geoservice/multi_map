@@ -2,6 +2,7 @@
 import os
 import imp
 import time
+import json
 import importlib
 from multiprocessing import Process, Queue
 from wsgiref.simple_server import make_server, WSGIServer
@@ -120,9 +121,9 @@ class MultiWEB(object):
                 "path": (str, unicode),
                 "enable": bool,
             }, 
-            "tmpfs": {
+            "maptemp_fs": {
                 "preserial": self._preserial_fs,
-                "subserial": self._subserial_tmpfs,
+                "subserial": self._subserial_maptemp_fs,
                 "path": (str, unicode),
                 "ext": (list, str, unicode),
                 "template": (dict, str, unicode),
@@ -135,9 +136,9 @@ class MultiWEB(object):
                 "query": (list, str, unicode),
                 "enable": bool,
             }, 
-            "tmppgsql": {
+            "maptemp_pgsql": {
                 "preserial": self._preserial_pgsql,
-                "subserial": self._subserial_tmppgsql,
+                "subserial": self._subserial_maptemp_pgsql,
                 "connect": dict,
                 "query": (list, str, unicode),
                 "template": (dict, str, unicode),
@@ -214,12 +215,25 @@ class MultiWEB(object):
             if self.serial_formats[cont_format]["enable"]:
                 if self.serial_formats[cont_format]["test"](cont):
                     return cont_format
+                
+    def _create_maptemp_content(self, mapsrc, maptemp):
+        """
+        Create maptemp from source file 
+        Add mapsrc to VARS[data] maptemp
+        """
+        if os.path.isfile(test_cont):
+            with open(test_cont) as file_:  
+                template = json.load(file_)
+        else:
+            template = json.loads(test_cont)
+        template["VARS"]["data"] = mapsrc
+        return template
         
     def _preserial_fs(self, **kwargs):
         """
         Find names for serialization all fs sources
         """
-        _dir = kwargs['path']
+        dir_ = kwargs['path']
         if kwargs.has_key('ext'):
             if isinstance(kwargs['ext'], (list, tuple)):
                 exts = kwargs['ext']
@@ -228,13 +242,13 @@ class MultiWEB(object):
         else:
             exts = self.serial_formats
         names = []
-        for _file in os.listdir(_dir):
-            file_name = _file.split('.')[0]
-            file_ext = _file.split('.')[-1]
+        for file_ in os.listdir(dir_):
+            file_name = file_.split('.')[0]
+            file_ext = file_.split('.')[-1]
             if file_ext in exts:
                 self.logging(
                     2,
-                    "INFO: In Dir:{0}, add Map name {1}".format(_dir, file_name)
+                    "INFO: In Dir:{0}, add Map name {1}".format(dir_, file_name)
                 )
                 names.append(file_name)
         return names
@@ -243,7 +257,7 @@ class MultiWEB(object):
         """
         subserializator for fs
         """
-        _dir = kwargs['path']
+        dir_ = kwargs['path']
         if kwargs.has_key('ext'):
             if isinstance(kwargs['ext'], (list, tuple)):
                 exts = kwargs['ext']
@@ -251,38 +265,45 @@ class MultiWEB(object):
                 exts = [kwargs['ext']]
         else:
             exts = self.serial_formats
-        for _file in os.listdir(_dir):
+        for file_ in os.listdir(dir_):
             for ext in exts:
-                if _file == "{0}.{1}".format(map_name, ext):
-                    content = "{0}/{1}".format(_dir, _file)
+                if file_ == "{0}.{1}".format(map_name, ext):
+                    content = "{0}/{1}".format(dir_, file_)
                     cont_format = self._detect_cont_format(content)
                     if cont_format is not None:
                         self.logging(
                             2,
-                            "INFO: In Dir:{0}, load Map File {1}".format(_dir, _file)
+                            "INFO: In Dir:{0}, load Map File {1}".format(dir_, file_)
                         )
                         return cont_format, content
                 
-    def _subserial_tmpfs(self, map_name, **kwargs):
+    def _subserial_maptemp_fs(self, map_name, **kwargs):
         """
-        subserializator template for fs source list
+        subserializator maptemp for fs source list
         """
-        _dir = kwargs['path']
-        if isinstance(kwargs['ext'], (list, tuple)):
-            exts = kwargs['ext']
-        else:
-            exts = [kwargs['ext']]
-        for _file in os.listdir(_dir):
-            for ext in exts:
-                if _file == "{0}.{1}".format(map_name, ext):
-                    content = "{0}/{1}".format(_dir, _file)
-                    cont_format = self._detect_cont_format(content)
-                    if cont_format is not None:
-                        self.logging(
-                            2,
-                            "INFO: In Dir:{0}, load Map File {1}".format(_dir, _file)
-                        )
-                        return cont_format, content
+        cont_format = "maptemp"
+        maptemp = kwargs['template']
+        if self.serial_formats[cont_format]['test'](maptemp):
+
+            dir_ = kwargs['path']
+            if isinstance(kwargs['ext'], (list, tuple)):
+                exts = kwargs['ext']
+            else:
+                exts = [kwargs['ext']]
+            for file_ in os.listdir(dir_):
+                for ext in exts:
+                    if file_ == "{0}.{1}".format(map_name, ext):
+                        mapsrc = "{0}/{1}".format(dir_, file_)
+                        content = self._create_maptemp_content(mapsrc, maptemp)
+                        if content:
+                            self.logging(
+                                2,
+                                "INFO: In Dir:{0}, load Map Source {1}".format(
+                                    dir_, 
+                                    file_
+                                )
+                            )
+                            return cont_format, content
 
     def _preserial_pgsql(self, **kwargs):
         """
@@ -348,9 +369,9 @@ class MultiWEB(object):
                 )
                 return cont_format, content
     
-    def _subserial_tmppgsql(self, map_name, **kwargs):
+    def _subserial_maptemp_pgsql(self, map_name, **kwargs):
         """
-        subserializator template for pgsql source list
+        subserializator maptemp for pgsql source list
         """
         if isinstance(kwargs['query'], list):
             query = '\n'.join(kwargs['query'])
