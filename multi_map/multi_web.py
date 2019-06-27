@@ -221,13 +221,19 @@ class MultiWEB(object):
         Create maptemp from source file 
         Add mapsrc to VARS[data] maptemp
         """
-        if os.path.isfile(test_cont):
-            with open(test_cont) as file_:  
-                template = json.load(file_)
-        else:
-            template = json.loads(test_cont)
-        template["VARS"]["data"] = mapsrc
-        return template
+        template = None
+        if isinstance(maptemp, (str, unicode)):
+            if os.path.isfile(maptemp):
+                with open(maptemp) as file_:  
+                    template = json.load(file_)
+            else:
+                template = json.loads(maptemp)
+        elif isinstance(maptemp, dict):
+            template = maptemp
+            
+        if template:
+            template["VARS"]["data"] = mapsrc
+            return template
         
     def _preserial_fs(self, **kwargs):
         """
