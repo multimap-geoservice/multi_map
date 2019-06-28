@@ -1,26 +1,29 @@
 {
-    "requests":[
-        "multi_map.requests.request_mapscript",
-        "multi_map.requests.request_mapnik"
-    ],
     "configs":{
-        "multi_map.requests.request_mapnik": "ogcserver.conf"
+        "multi_map.requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf"
     },
     "sources":[
         {
             "type": "fs",
-            "path": "./GIS/mapserver/debug/all_maps/mapnik",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik",
             "enable": true
         }, 
         {
             "type": "fs",
-            "path": "./GIS/mapserver/debug/all_maps/fs",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/fs",
             "enable": true
         }, 
         {
+            "type": "maptemp_fs",
+            "path": "/home/oldbay/GIS/mapserver/debug/rasters_src",
+            "ext": "tif",
+            "template": "/home/oldbay/GIS/mapserver/debug/rasters_src/raster.json",
+            "enable": true
+        },
+        {
             "type": "pgsql", 
             "connect": {
-                "host": "localhost",
+                "host": "william",
                 "dbname": "maps",
                 "user": "gis",
                 "password": "gis"
@@ -32,11 +35,5 @@
             ],
             "enable": true
         }
-    ],
-    "host":"0.0.0.0",
-    "port":3007,
-    "base_url":"http://localhost",
-    "multi":true,
-    "debug":2,
-    "timeout":600
+    ]
 }

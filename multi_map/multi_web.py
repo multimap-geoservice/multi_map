@@ -290,7 +290,6 @@ class MultiWEB(object):
         cont_format = "maptemp"
         maptemp = kwargs['template']
         if self.serial_formats[cont_format]['test'](maptemp):
-
             dir_ = kwargs['path']
             if isinstance(kwargs['ext'], (list, tuple)):
                 exts = kwargs['ext']
@@ -480,7 +479,6 @@ class MultiWEB(object):
     def application(self, env, start_response):
         
         # find map name
-        #map_name = env['PATH_INFO'].split('/')[-1]
         map_name = "/".join(env['PATH_INFO'].split('/')[1:])
         
         # text debug

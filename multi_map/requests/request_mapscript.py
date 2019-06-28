@@ -29,7 +29,7 @@ class Protocol(object):
                 "enable": True,
                 },
             "maptemp": {
-                "test": self.is_json,
+                "test": self.is_maptemp,
                 "get": self.get_maptemp,
                 "request": self.request_mapscript,
                 "metadata": self.get_metadata,
@@ -55,6 +55,27 @@ class Protocol(object):
             return False
         else:
             return True    
+
+    def is_maptemp(self, test_cont):
+        out = False
+        if isinstance(test_cont, (str, unicode)):
+            try:
+                if os.path.isfile(test_cont):
+                    with open(test_cont) as file_:  
+                        temp_ = json.load(file_)
+                else:
+                    temp_ = json.loads(test_cont)
+            except:
+                temp_ = {}
+        elif isinstance(test_cont, dict):
+            temp_ = test_cont
+        else:
+            temp_ = {}
+        
+        if temp_.has_key("VARS"):
+            if temp_["VARS"].has_key("data"):
+                out = True
+        return out
 
     def is_map(self, test_cont):
         try:
