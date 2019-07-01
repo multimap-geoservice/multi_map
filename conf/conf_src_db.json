@@ -1,0 +1,113 @@
+{
+    "configs":{
+        "multi_map.requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf"
+    },
+    "sources":[
+        {
+            "type": "fs",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik",
+            "enable": true
+        }, 
+        {
+            "type": "fs",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/fs",
+            "enable": true
+        }, 
+        {
+            "type": "maptemp_pgsql",
+            "connect": {
+                "host": "william",
+                "dbname": "maps",
+                "user": "gis",
+                "password": "gis"
+            }, 
+            "query": [
+                "select name as map_name,",
+                "       src as map_cont",
+                "from srcs"
+            ],
+            "template": {
+                "VARS":{
+                    "name": "raster",
+                    "data": "",
+                    "imagecolor": [255, 255, 255], 
+                    "extent": [
+                        166021.44,
+                        0.00,
+                        534994.66,
+                        9329005.18
+                    ],
+                    "size": [800, 800],
+                    "epsg_id": "32638"
+                },
+                "TEMPS":{
+                    "layer_temp":[
+                        {
+                            "TEMP": [
+                                "{% set base1 = data.split('/') %}",
+                                "{% set base2 = base1[-1].split('.') %}",
+                                "{% set basename = base2[0] %}"
+                            ]
+                        },
+                        {
+                            "OBJ": "mapscript.layerObj",
+                            "name": {"TEMP": "'img_{{basename}}'"},
+                            "status": {"OBJ": "mapscript.MS_ON"}, 
+                            "type": {"OBJ": "mapscript.MS_LAYER_RASTER"}, 
+                            "data": {"VAR": "data"},
+                            "units": {"OBJ": "mapscript.MS_METERS"},
+                            "tileitem": "location",
+                            "setProcessing": [
+                                    "NODATA=0"
+                                ],
+                            "metadata.set": [
+                                [
+                                    "wms_abstract",
+                                    {"TEMP": "'img_{{basename}}'"}
+                                ]
+                            ]
+                        }
+                    ],
+                    "map_temp":{
+                        "OBJ": "mapscript.mapObj",
+                        "name": {"VAR": "name"},
+                        "imagecolor.setRGB": [{"VAR": "imagecolor"}],
+                        "setExtent": [{"VAR": "extent"}],
+                        "setProjection": {"TEMP": "'init=epsg:{{epsg_id}}'"},
+                        "units": {
+                            "OBJ": "mapscript.MS_DD"
+                        },
+                        "web.metadata.set": [
+                            ["ows_enable_request", "*"],
+                            ["labelcache_map_edge_buffer", "-10"],
+                            ["wms_srs", "EPSG:4326 EPSG:32638 EPSG:3857 EPSG:900913"],
+                            ["wms_title", {"VAR": "name"}]
+                        ],
+                        "SUB_OBJ": [
+                            {"TEMP": "{% include 'layer_temp' %}"}
+                        ]
+                    }
+                },
+                "MAP":{
+                    "TEMP":"map_temp"
+                }
+            },            
+            "enable": true
+        },
+        {
+            "type": "pgsql", 
+            "connect": {
+                "host": "william",
+                "dbname": "maps",
+                "user": "gis",
+                "password": "gis"
+            }, 
+            "query": [
+                "select name as map_name,",
+                "       cont as map_cont",
+                "from maps"
+            ],
+            "enable": true
+        }
+    ]
+}
