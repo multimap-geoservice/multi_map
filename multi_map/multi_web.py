@@ -289,6 +289,7 @@ class MultiWEB(object):
         """
         cont_format = "maptemp"
         maptemp = kwargs['template']
+        
         if self.serial_formats[cont_format]['test'](maptemp):
             dir_ = kwargs['path']
             if isinstance(kwargs['ext'], (list, tuple)):
@@ -378,35 +379,39 @@ class MultiWEB(object):
         """
         subserializator maptemp for pgsql source list
         """
-        if isinstance(kwargs['query'], list):
-            query = '\n'.join(kwargs['query'])
-        else:
-            query = kwargs['query']
-        SQL = """
-        select query.map_cont
-        from (
-        {0}
-        ) as query
-        where query.map_name = '{1}'
-        limit 1
-        """.format(query, map_name)
+        cont_format = "maptemp"
+        maptemp = kwargs['template']
         
-        psql = pgsqldb(**kwargs['connect'])
-        psql.sql(SQL)
-        content = psql.fetchone()
-        psql.close()
-        if content is not None:
-            content = content[0]
-            cont_format = self._detect_cont_format(content)
-            if cont_format is not None:
-                self.logging(
-                    2,
-                    "INFO: From Database:{0}, load Map {1}".format(
-                        kwargs['connect']['dbname'],
-                        map_name
+        if self.serial_formats[cont_format]['test'](maptemp):
+            if isinstance(kwargs['query'], list):
+                query = '\n'.join(kwargs['query'])
+            else:
+                query = kwargs['query']
+            SQL = """
+            select query.map_cont
+            from (
+            {0}
+            ) as query
+            where query.map_name = '{1}'
+            limit 1
+            """.format(query, map_name)
+            
+            psql = pgsqldb(**kwargs['connect'])
+            psql.sql(SQL)
+            mapsrc = psql.fetchone()
+            psql.close()
+            if mapsrc is not None:
+                mapsrc = mapsrc[0]
+                content = self._create_maptemp_content(mapsrc, maptemp)
+                if content:
+                    self.logging(
+                        2,
+                        "INFO: From Database:{0}, load Map Source {1}".format(
+                            kwargs['connect']['dbname'],
+                            map_name
+                        )
                     )
-                )
-                return cont_format, content
+                    return cont_format, content
 
     def full_serializer(self, replace=True):
         """
