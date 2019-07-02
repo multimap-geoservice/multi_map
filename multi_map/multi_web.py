@@ -2,6 +2,7 @@
 import os
 import imp
 import time
+import copy
 import json
 import importlib
 from multiprocessing import Process, Queue
@@ -229,7 +230,7 @@ class MultiWEB(object):
             else:
                 template = json.loads(maptemp)
         elif isinstance(maptemp, dict):
-            template = maptemp
+            template = copy.deepcopy(maptemp)
             
         if template:
             template["VARS"]["data"] = mapsrc
