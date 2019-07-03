@@ -43,6 +43,21 @@ class Protocol(object):
                 "enable": True,
                 },
         }
+        self.def_metadata_keys = [
+            "wms_title", 
+            "wfs_title", 
+            "ows_title",
+            "wms_abstract", 
+            "wfs_abstract", 
+            "ows_abstract", 
+            "wms_enable_request", 
+            "wfs_enable_request", 
+            "ows_enable_request", 
+            "wms_onlineresource", 
+            "wfs_onlineresource", 
+            "ows_onlineresource", 
+        ]
+        self.mapscript_ver = [int(my) for my in mapscript.MS_VERSION.split('.')]
             
     def is_json(self, test_cont):
         try:
@@ -170,5 +185,13 @@ class Protocol(object):
             que.put(out_response)
             
     def get_metadata(self, map_cont):
-        matadata_keys = map_cont.web.metadata.keys() 
-        return {my: map_cont.web.metadata.get(my) for my in matadata_keys}
+        matadata_keys = self.def_metadata_keys
+        if self.mapscript_ver[0] >= 7:
+            if self.mapscript_ver[1] >= 2:
+                matadata_keys = map_cont.web.metadata.keys() 
+        return {
+            my: map_cont.web.metadata.get(my) 
+            for my 
+            in matadata_keys
+            if map_cont.web.metadata.get(my) 
+        }
