@@ -65,6 +65,7 @@ class Protocol(object):
         for num in args:
             if self.mapscript_ver[index] < num:
                 control = False
+            index += 1
         return control
             
     def is_json(self, test_cont):
