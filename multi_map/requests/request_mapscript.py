@@ -58,6 +58,14 @@ class Protocol(object):
             "ows_onlineresource", 
         ]
         self.mapscript_ver = [int(my) for my in mapscript.MS_VERSION.split('.')]
+    
+    def ver_control(self, *args):
+        control = True
+        index = 0
+        for num in args:
+            if self.mapscript_ver[index] < num:
+                control = False
+        return control
             
     def is_json(self, test_cont):
         try:
@@ -186,9 +194,8 @@ class Protocol(object):
             
     def get_metadata(self, map_cont):
         matadata_keys = self.def_metadata_keys
-        if self.mapscript_ver[0] >= 7:
-            if self.mapscript_ver[1] >= 2:
-                matadata_keys = map_cont.web.metadata.keys() 
+        if self.ver_control(7, 2):
+            matadata_keys = map_cont.web.metadata.keys() 
         return {
             my: map_cont.web.metadata.get(my) 
             for my 
