@@ -1,0 +1,42 @@
+{
+    "requests":[
+        "multi_map.requests.request_mapscript",
+        "multi_map.requests.request_mapnik"
+    ],
+    "configs":{
+        "multi_map.requests.request_mapnik": "ogcserver.conf"
+    },
+    "sources":[
+        {
+            "type": "fs",
+            "path": "./GIS/mapserver/debug/all_maps/mapnik",
+            "enable": true
+        }, 
+        {
+            "type": "fs",
+            "path": "./GIS/mapserver/debug/all_maps/fs",
+            "enable": true
+        }, 
+        {
+            "type": "pgsql", 
+            "connect": {
+                "host": "localhost",
+                "dbname": "maps",
+                "user": "gis",
+                "password": "gis"
+            }, 
+            "query": [
+                "select name as map_name,",
+                "       cont as map_cont",
+                "from maps"
+            ],
+            "enable": true
+        }
+    ],
+    "host":"0.0.0.0",
+    "port":3007,
+    "base_url":"http://localhost",
+    "multi":true,
+    "debug":2,
+    "timeout":600
+}
