@@ -1,0 +1,58 @@
+From 84e2d4f543768a1f34d626a4caa019b827200a9a Mon Sep 17 00:00:00 2001
+From: Sandro Tosi <morph@debian.org>
+Date: Sun, 10 Apr 2016 13:13:43 +0100
+Subject: dont depend on install when running tests
+
+---
+ Makefile | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 13ed0c0..909d549 100644
+--- a/Makefile
++++ b/Makefile
+@@ -117,36 +117,36 @@ setup-dev-env: install-git-hooks install-pip
+ # ===================================================================
+ 
+ # Run all tests.
+-test: install
++test:
+ 	$(PYTHON) $(TSCRIPT)
+ 
+ # Test psutil process-related APIs.
+-test-process: install
++test-process:
+ 	$(PYTHON) -m unittest -v psutil.tests.test_process
+ 
+ # Test psutil system-related APIs.
+-test-system: install
++test-system:
+ 	$(PYTHON) -m unittest -v psutil.tests.test_system
+ 
+ # Test misc.
+-test-misc: install
++test-misc:
+ 	$(PYTHON) psutil/tests/test_misc.py
+ 
+ # Test POSIX.
+-test-posix: install
++test-posix:
+ 	$(PYTHON) psutil/tests/test_posix.py
+ 
+ # Test memory leaks.
+-test-memleaks: install
++test-memleaks:
+ 	$(PYTHON) psutil/tests/test_memory_leaks.py
+ 
+ # Run specific platform tests only.
+-test-platform: install
++test-platform:
+ 	$(PYTHON) psutil/tests/test_`$(PYTHON) -c 'import psutil; print([x.lower() for x in ("LINUX", "BSD", "OSX", "SUNOS", "WINDOWS") if getattr(psutil, x)][0])'`.py
+ 
+ # Run a specific test by name, e.g.
+ # make test-by-name psutil.tests.test_system.TestSystemAPIs.test_cpu_times
+-test-by-name: install
++test-by-name:
+ 	@$(PYTHON) -m unittest -v $(ARGS)
+ 
+ coverage: install

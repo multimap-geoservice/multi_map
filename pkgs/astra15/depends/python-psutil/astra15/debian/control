@@ -1,0 +1,44 @@
+Source: python-psutil
+Section: python
+Priority: optional
+Maintainer: Sandro Tosi <morph@debian.org>
+Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Build-Depends: debhelper,
+               python-all-dev,
+               python-all-dbg,
+               dh-python,
+               procps,
+               python-ipaddress,
+               python-mock
+Standards-Version: 3.9.8
+X-Python-Version: >= 2.7
+Homepage: https://github.com/giampaolo/psutil
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/python-psutil.git
+Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/python-psutil.git
+
+Package: python-psutil
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Suggests: python-psutil-doc
+Description: module providing convenience functions for managing processes
+ psutil is a module providing an interface for retrieving information on
+ running processes and system utilization (CPU, memory) in a portable way
+ by using Python, implementing many functionalities offered by tools like
+ ps, top and Windows task manager.
+ .
+ It currently supports Linux, OS X, FreeBSD and Windows.
+
+Package: python-psutil-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, python-psutil (= ${binary:Version}), python-dbg, ${shlibs:Depends}
+Description: module providing convenience functions for managing processes (debug)
+ psutil is a module providing an interface for retrieving information on
+ running processes and system utilization (CPU, memory) in a portable way
+ by using Python, implementing many functionalities offered by tools like
+ ps, top and Windows task manager.
+ .
+ It currently supports Linux, OS X, FreeBSD and Windows.
+ .
+ This package contains the debug extension for python-psutil.

@@ -1,0 +1,182 @@
+python-daemon (2.1.2-1) unstable; urgency=medium
+
+  * The “Sunnyur Rahaman” release.
+  * New upstream version. Highlights since previous release:
+    * Raise a warning that the ‘runner’ module is pending deprecation.
+    * Ensure custom types are part of the Python type hierarchy.
+    * Avoid a circular dependency for the version string at install time.
+  * Update UScan configuration to format version 4.
+
+ -- Ben Finney <bignose@debian.org>  Thu, 19 Jan 2017 06:39:34 +1100
+
+python-daemon (2.1.1-1) unstable; urgency=medium
+
+  * The “Ozgecan Aslan” release.
+  * New upstream version. Highlights since previous release:
+    * Specify development status “Production/Stable” in Trove classifiers.
+    * Use current Python concept of “basestring” to test for an attribute
+      name.
+      Closes: bug#792871. Thanks to Arthur de Jong for the report.
+    * Add ‘initgroups’ option to set the daemon process's supplementary
+      groups with ‘os.initgroups’.
+      Closes: bug#773291. Thanks to Martin F. Krafft for the report.
+    * Document the rationale for insecure default umask.
+      Closes: bug#772888.
+  * debian/*:
+    * Update my email address for Debian work.
+  * debian/copyright, debian/*:
+    * Update years in copyright notices.
+    * Use “License-Grant” field to distinguish grant from conditions.
+    * Grant license in packaging files under GPL v3 or later.
+    * Add editor hints.
+  * debian/rules:
+    * Allow automatic detection of upstream test suite.
+  * debian/control:
+    * Declare “Standards-Version: 3.9.8”. No additional changes required.
+    * Set “VCS-*” fields to URLs for encrypted Alioth services.
+    * Set “Homepage” field to URL for encrypted PyPI service.
+  * debian/watch:
+    * Specify OpenPGP signature file for upstream source tarball.
+    * Clarify format and comments.
+  * debian/control, debian/bzr-buildpackage.conf, debian/gbp.conf:
+    * Migrate to Git VCS for packaging.
+    * Remove superfluous configuration for Bzr-buildpackage.
+    * Add configuration for Git-buildpackage.
+  * debian/tests/control, debian/tests/smoke-python{2,3}:
+    * Add smoke test suite to verify distribution is installed.
+  * debian/README.source:
+    * Document how the source package is built.
+
+ -- Ben Finney <bignose@debian.org>  Fri, 12 Aug 2016 13:47:58 +1000
+
+python-daemon (2.0.5-1) unstable; urgency=high
+
+  * The “Ghazi Beji” release.
+  * Urgency high now that our dependency ‘python-lockfile’ broke backward
+    compatibility.
+  * New upstream version. Highlights since previous release:
+    * Supports Python 2 and Python 3 with the same code base.
+    * Now uses ‘lockfile’ >= 0.9, with its implementation of
+      ‘PIDLockFile’.
+      (Closes: bug#787497)
+    * Licensed under terms of Apache License 2.0.
+  * debian/control:
+    * Declare “Standards-Version: 3.9.6”.
+    * Use canonical Alioth VCS anonymous-access URLs.
+    * Update build dependencies for upstream changes:
+      * Removed ‘python-minimock’.
+      * Versioned dependency on ‘lockfile’ library.
+      * Add Python ‘unittest2’, ‘mock’, ‘testtools’, ‘testscenarios’ build
+        dependencies.
+      * Add Python ‘docutils’ dependency.
+    * Remove support for Python versions earlier than 2.7.
+  * debian/copyright:
+    * Conform to official copyright format version 1.0.
+    * Update copyright information.
+  * debian/rules:
+    * Use a catch-all target for all Policy-required targets.
+    * Add ‘get-orig-source’ target (as recommended by Policy §4.9) and
+      ‘get-packaged-orig-source’ target.
+    * Upstream test suite currently not working; don't run it.
+    * Discard HTTP traffic during packaging actions.
+  * debian/rules, debian/compat, debian/control, debian/pyversions:
+    * Upgrade to Debhelper 9.
+    * Convert Python packaging system to Pybuild.
+      (Closes: bug#706190) Thanks to Dave Steele for the bug report.
+    * Convert to ‘dh_python{2,3}’ build system. (Closes: bug#785997)
+      Thanks to Luca Falavigna for the bug report.
+    * Specify range of Python versions supported.
+      Remove obsolete ‘pyversions’ file.
+      (Closes: bug#581180)
+    * Build packages targeting both Python 2 and Python 3.
+  * debian/bzr-builddeb.conf:
+    * Add this package's configuration for ‘bzr builddeb’.
+  * debian/upstream/signing-key.asc:
+    * Add public keyring for keys used to sign upstream source.
+  * debian/watch:
+    * Update comments, add editor hints.
+    * Update patterns for Debian redirector for PyPI.
+      The PyPI directory-listing API is no longer supported.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Tue, 09 Jun 2015 05:53:51 +1000
+
+python-daemon (1.5.5-1) unstable; urgency=low
+
+  * New upstream version. Highlights since previous release:
+    + Stop using ‘pkg_resources’ and revert to pre-1.5.3 version-string
+      handling, until a better way that doesn't break everyone else's
+      installation can be found.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sat, 10 Apr 2010 15:44:43 +1000
+
+python-daemon (1.5.4-1) unstable; urgency=low
+
+  * New upstream version. Highlights since previous release:
+    * Invoke the pidfile context manager's ‘__exit__’
+      method with the correct arguments (as per
+      <URL:http://docs.python.org/library/stdtypes.html#typecontextmanager>).
+  * debian/source/format:
+    * Declare source package format.
+  * debian/control:
+    * Build-Depends on all dependencies, so that ‘pkg_resources.require’
+      works for all packaging actions.
+    * Conform to ‘Standards-Version: 3.8.4’ (no additional changes needed).
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sat, 27 Feb 2010 22:57:50 +1100
+
+python-daemon (1.5.2-2) unstable; urgency=medium
+
+  * Urgency ‘medium’ to address serious packaging bug.
+  * debian/control:
+    + Fix missing dependency on ‘python-lockfile’.
+      (Closes: Bug#565352)
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Fri, 15 Jan 2010 13:51:34 +1100
+
+python-daemon (1.5.2-1) unstable; urgency=low
+
+  * New upstream version. Highlights since previous release:
+    * Ensure we only prevent core dumps if ‘prevent_core’ is true.
+    * Implement ‘TimeoutPIDLockFile’ to specify a timeout in advance of
+      lock acquisition.
+    * Distinguish different conditions on reading and parsing PID file.
+    * Write the PID file using correct OS locking and permissions.
+    * Close the PID file after writing.
+    * Implement ‘PIDLockFile’ as subclass of ‘lockfile.LinkFileLock’.
+    * Only inspect the file descriptor of streams if they have one.
+  * debian/control:
+    * Drop ‘Provides’ field, since a Python-versioned dependency should
+      not be necessary (ref. ‘python-support’ documentation).
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Fri, 06 Nov 2009 14:29:01 +1100
+
+python-daemon (1.4.8-1) unstable; urgency=medium
+
+  * Urgency medium to fix broken behaviour in common scenarios.
+  * New upstream version.
+    + Drop default handling of ‘SIGCLD’ signal, to avoid bad interactions
+      with other Python standard library modules.
+  * debian/control:
+    + Set ‘Priority: optional’ to allow other common packages to depend on
+      this one.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Fri, 18 Sep 2009 08:46:56 +1000
+
+python-daemon (1.4.7-1) unstable; urgency=low
+
+  * New upstream version.
+    + Exclude ‘test’ package from distribution installation.
+    (Closes: Bug#544391)
+  * debian/pyversions:
+    + Require at least Python 2.5.
+  * debian/control:
+    + Update to ‘Standards-Version: 3.8.3’ (no additional changes needed).
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Fri, 04 Sep 2009 00:13:07 +1000
+
+python-daemon (1.4.6-1) unstable; urgency=low
+
+  * Initial Debian packaging.
+    (Closes: bug#524861)
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sun, 21 Jun 2009 23:55:01 +1000

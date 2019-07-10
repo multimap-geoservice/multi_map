@@ -1,0 +1,42 @@
+Source: python-daemon
+Maintainer: Ben Finney <bignose@debian.org>
+Section: python
+Priority: optional
+Build-Depends:
+    python-setuptools,
+    python-docutils,
+    python-mock (>= 1.0),
+    python-lockfile (>= 1:0.9),
+    python-all,
+    dh-python,
+    debhelper
+Standards-Version: 3.9.8
+Homepage: https://pypi.python.org/pypi/python-daemon/
+VCS-Git: https://anonscm.debian.org/git/collab-maint/pkg-python-daemon.git
+VCS-Browser: https://anonscm.debian.org/git/collab-maint/pkg-python-daemon.git/
+X-Python-Version: >= 2.7
+
+Package: python-daemon
+Architecture: all
+Depends:
+    python-pkg-resources,
+    python-lockfile (>= 1:0.9),
+    ${python:Depends}, ${misc:Depends}
+Description: library for making a Unix daemon process — Python 2
+ ‘daemon’ is a library that assists a Python program to turn itself
+ into a well-behaved Unix daemon process, as specified in PEP 3143.
+ .
+ This library provides a ‘DaemonContext’ class that manages the
+ following important tasks for becoming a daemon process:
+ .
+  * Detach the process into its own process group.
+  * Set process environment appropriate for running inside a chroot.
+  * Renounce suid and sgid privileges.
+  * Close all open file descriptors.
+  * Change the working directory, uid, gid, and umask.
+  * Set appropriate signal handlers.
+  * Open new file descriptors for stdin, stdout, and stderr.
+  * Manage a specified PID lock file.
+  * Register cleanup functions for at-exit processing.
+ .
+ This package installs the library for Python 2.

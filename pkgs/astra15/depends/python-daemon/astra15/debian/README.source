@@ -1,0 +1,32 @@
+=========================================
+Debian source package for ‘python-daemon’
+=========================================
+
+Build source package from VCS
+=============================
+
+The source for the Debian packaging is managed in these conventional
+Git branches:
+
+* master: The current released code base.
+* packaging: Debian packaging development branch.
+* upstream: Upstream source code base, as imported from tarballs.
+* pristine-tar: Metadata for reproducibly generating upstream tarball.
+
+To build the source package from the Git VCS, use the Debian ‘gitpkg’
+tool to generate all the files::
+
+    $ git checkout master
+    $ gitpkg packaging upstream
+
+The ‘dpkg-source’ process will complain about the “deletion” of
+upstream source. This is because the upstream source is not present at
+all in the ‘packaging’ branch exported, but in the ‘upstream’ branch.
+The upstream source is safely exported earlier in its own tarball.
+
+The generated source package is the source control file
+‘../deb-packages/python-daemon/python-daemon_$DEBIANVER.dsc’ and its
+associated files in that directory.
+
+
+ -- Ben Finney <bignose@debian.org>, Fri, 12 Aug 2016 13:42:45 +1000

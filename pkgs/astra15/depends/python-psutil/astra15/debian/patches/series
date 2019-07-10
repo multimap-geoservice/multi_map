@@ -1,0 +1,3 @@
+remove-google-analytics.patch
+0002-dont-depend-on-install-when-running-tests.patch
+0003-pass-PYTHONPATH-to-the-test-runner.patch

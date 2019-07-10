@@ -1,0 +1,66 @@
+From 6db2aef35611e3d5ce20915adf2870e1d4a4d1b6 Mon Sep 17 00:00:00 2001
+From: Sandro Tosi <morph@debian.org>
+Date: Sun, 10 Apr 2016 13:17:47 +0100
+Subject: pass PYTHONPATH to the test runner
+
+---
+ Makefile | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 909d549..d6cc3e2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -3,6 +3,7 @@
+ # You can set the variables below from the command line.
+ 
+ PYTHON = python
++PYTHONPATH = .
+ TSCRIPT = psutil/tests/runner.py
+ ARGS =
+ 
+@@ -118,36 +119,36 @@ setup-dev-env: install-git-hooks install-pip
+ 
+ # Run all tests.
+ test:
+-	$(PYTHON) $(TSCRIPT)
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) $(TSCRIPT)
+ 
+ # Test psutil process-related APIs.
+ test-process:
+-	$(PYTHON) -m unittest -v psutil.tests.test_process
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m unittest -v psutil.tests.test_process
+ 
+ # Test psutil system-related APIs.
+ test-system:
+-	$(PYTHON) -m unittest -v psutil.tests.test_system
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m unittest -v psutil.tests.test_system
+ 
+ # Test misc.
+ test-misc:
+-	$(PYTHON) psutil/tests/test_misc.py
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) psutil/tests/test_misc.py
+ 
+ # Test POSIX.
+ test-posix:
+-	$(PYTHON) psutil/tests/test_posix.py
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) psutil/tests/test_posix.py
+ 
+ # Test memory leaks.
+ test-memleaks:
+-	$(PYTHON) psutil/tests/test_memory_leaks.py
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) psutil/tests/test_memory_leaks.py
+ 
+ # Run specific platform tests only.
+ test-platform:
+-	$(PYTHON) psutil/tests/test_`$(PYTHON) -c 'import psutil; print([x.lower() for x in ("LINUX", "BSD", "OSX", "SUNOS", "WINDOWS") if getattr(psutil, x)][0])'`.py
++	PYTHONPATH=$(PYTHONPATH) $(PYTHON) psutil/tests/test_`$(PYTHON) -c 'import psutil; print([x.lower() for x in ("LINUX", "BSD", "OSX", "SUNOS", "WINDOWS") if getattr(psutil, x)][0])'`.py
+ 
+ # Run a specific test by name, e.g.
+ # make test-by-name psutil.tests.test_system.TestSystemAPIs.test_cpu_times
+ test-by-name:
+-	@$(PYTHON) -m unittest -v $(ARGS)
++	PYTHONPATH=$(PYTHONPATH) @$(PYTHON) -m unittest -v $(ARGS)
+ 
+ coverage: install
+ 	# Note: coverage options are controlled by .coveragerc file

@@ -1,0 +1,237 @@
+python-lockfile (1:0.12.2-2) unstable; urgency=medium
+
+  * The “Tuğçe Albayrak” release.
+  * Acknowledge non-maintainer upload “1:0.10.2-2.1”.
+    Thanks, Neil Williams.
+  * debian/*:
+    Update my email address for Debian work.
+  * debian/copyright:
+    * Update copyright notices.
+    * Distinguish license conditions from license grants.
+    * Document explicit additional grant of license to a file.
+    * Document copyright information for smoke tests.
+  * debian/tests/smoke_test.py:
+    * Add smoke test suite to verify distribution is installed.
+  * debian/tests/control, debian/tests/smoke-python{2,3}:
+    * Add smoke test suite to verify distribution is installed.
+  * debian/control, debian/bzr-buildpackage.conf, debian/gbp.conf:
+    * Migrate packaging VCS to Git at NotABug.
+    * Remove superfluous configuration for Bzr-buildpackage.
+    * Add configuration for Git-buildpackage.
+  * debian/README.source:
+    * Document how the source package is built.
+  * debian/control:
+    * Declare “Standards-Version: 3.9.8”.
+    * Declare versioned build dependency on ‘pbr’ library,
+      to match upstream build system's declaration.
+      Closes: bug#834626, thanks to Thomas Goirand for the report.
+
+ -- Ben Finney <bignose@debian.org>  Sun, 21 Aug 2016 15:59:20 +1000
+
+python-lockfile (1:0.12.2-1) unstable; urgency=medium
+
+  * The “Khalil Ahmad” release.
+  * New upstream version.
+    Highlights since last release:
+    * Minimum Python 2 version is now 2.7.
+  * debian/control:
+    * Declare “Standards-Version: 3.9.7”.
+    * Add “Build-Depends: python{,3}-setuptools” for the Distutils script.
+      Closes: bug#789825, thanks to Artur Rona for the report.
+    * Update package description to accurately describe latest behaviour.
+    * Add build dependencies for all supported Python environments.
+    * Add dependencies for building Sphinx documentation.
+    * Add placeholder for Sphinx documentation binary dependencies.
+    * Set compatible Python 2 versions to “>= 2.7”.
+    * Set “VCS-*” fields to URLs for encrypted Alioth services.
+    * Set “Homepage” field to URL for encrypted PyPI service.
+  * debian/docs, debian/*.docs:
+    * Move to package-specific ‘dh_installdocs’ configuration files.
+    * Follow change of document name ‘README’ → ‘README.rst’.
+    * Add new upstream ‘AUTHORS’ document.
+  * debian/rules:
+    * Upstream changelog now has conventional name, remove special handling.
+    * Build documentation using upstream Sphinx configuration.
+    * Use Debhelper to refine Sphinx documentation for package.
+  * debian/clean, debian/rules:
+    * Remove ‘dh_clean’ configuration, can't remove directories this way.
+      Add special handling for ‘doc/html/’ in ‘dh_auto_clean’ override.
+  * debian/python-lockfile-doc.{docs,doc-base}:
+    * Install generated API documentation.
+  * debian/copyright:
+    * Add known email addresses for all parties.
+    * Add editor hints.
+    * Wrap long lines in flowed text paragraphs.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Tue, 23 Feb 2016 09:28:27 +1100
+
+python-lockfile (1:0.10.2-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add build-depends on setuptools (Closes: #789825)
+
+ -- Neil Williams <codehelp@debian.org>  Sat, 20 Feb 2016 22:15:52 +0000
+
+python-lockfile (1:0.10.2-2) unstable; urgency=low
+
+  * The “Jabbeur Mejri” release.
+  * debian/NEWS:
+    * Jessie has released, the freeze is ended; resume our uploads to
+      “unstable”.
+  * debian/copyright:
+    * Update copyright notices.
+    * Update copyright information for transfer of upstream maintainer.
+    * Remove grant of license from “License” fields.
+  * debian/control, debian/rules, debian/*.install:
+    * Rely on ‘pybuild’ to find the files for install.
+      Remove obsolete ‘*.install’ files.
+    * Use Nose test runner for this package's tests.
+      Add ‘python{,3}-nose’ to Build-Depends.
+  * debian/rules:
+    * Discard HTTP traffic during packaging actions.
+    * Use a catch-all target for all Policy-required targets.
+  * debian/watch:
+    * Add editor hints.
+    * Switch from defunct source API to Debian-maintained mirror.
+  * debian/clean:
+    * Clean the documentation build directory.
+  * debian/patches/001.doctests-compatible-py2and3.patch:
+    * Patch doctests to be compatible with both Python 2 and Python 3.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Thu, 21 May 2015 05:57:57 +1000
+
+python-lockfile (1:0.10.2-1) experimental; urgency=low
+
+  * The “Marthe Gautier” release.
+  * New upstream version. (Closes: bug#738837)
+    Highlights since last release:
+    * The ‘lockfile’ module is now reorganized into a package.
+    * Renamed the lockfile classes. New names: ‘LinkLockFile’,
+      ‘MkdirLockFile’, ‘SQLiteLockFile’.
+    * New lockfile class, ‘PIDLockFile’.
+    * Remove support for Python versions earlier than 2.6.
+    * Add support for Python 3.2 – 3.4.
+  * debian/NEWS:
+    * Add a news entry to notify of the API compatibility breakage.
+  * debian/control:
+    * Update “VCS-*” fields for current Alioth layout.
+    * Declare “Standards-Version: 3.9.6”.
+    * Update package description to incorporate upstream changes.
+    * Update build requirements to incorporate upstream changes.
+  * debian/watch:
+    * Refine watch configuration for current upstream release location.
+  * debian/rules:
+    * License Debian packaging work under Expat terms.
+    * Add distinct targets for ‘…-arch’ and ‘…-indep’ (as recommended by
+      Policy §4.9).
+    * Add ‘get-orig-source’ target (as recommended by Policy §4.9) and
+      ‘get-packaged-orig-source’ target.
+  * debian/rules, debian/control, debian/compat, debian/*.install:
+    * Increase minimum Debhelper version to support new build targets.
+    * Switch to ‘pybuild’ packaging helper.
+    * Build packages targeting both Python 2 and Python 3.
+  * debian/pyversions, debian/control:
+    * Use current Python versions in Debian.
+  * debian/copyright:
+    * Conform to copyright format version 1.0.
+    * Update copyright notices.
+  * debian/bzr-builddeb.conf:
+    * Add this package's configuration for ‘bzr builddeb’.
+  * debian/control, debian/python-lockfile-doc.docs:
+    * Install API documentation.
+    * Separate API documentation into a new package.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sat, 20 Dec 2014 22:25:29 +1100
+
+python-lockfile (1:0.8-2) unstable; urgency=low
+
+  * The “Slow mind” release.
+  * Revert to upstream version 0.8, since version 0.9 should not have been
+    made available and upstream is currently unresponsive.
+    (Closes: bug#581061)
+  * debian/control:
+    + Declare “Standards-Version: 3.9.0”. No further changes needed.
+    + Alter description to correctly describe version 0.8.
+  * debian/pyversions:
+    + This older version supports Python 2.4 or later; declare it.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Tue, 29 Jun 2010 09:37:38 +1000
+
+python-lockfile (0.9-2) unstable; urgency=low
+
+  * The “Sax flute fun” release.
+  * debian/control:
+    + Set “Priority: optional” to allow other common packages to depend on
+      this one.
+    + Update the package description to better match the new capabilities.
+  * debian/pyversions:
+    + This version requires Python 2.5 or later; declare it.
+      (Closes: Bug#580937)
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Mon, 10 May 2010 10:19:07 +1000
+
+python-lockfile (0.9-1) unstable; urgency=low
+
+  * The “Euclid” release.
+  * New upstream version. Highlight since last release:
+    + Reorganise library into a package.
+    + API names changed for classes:
+      LinkLockFile
+      MkdirLockFile
+      SQLiteLockFile
+    + New lockfile class ‘PIDLockFile’.
+  * debian/control:
+    + Declare “Standards-Version: 3.8.4”. No further changes needed.
+    * Drop ‘Provides’ field, since a Python-versioned dependency should
+      not be necessary (ref. ‘python-support’ documentation).
+  * debian/source/format:
+    + Declare source package format.
+  * debian/watch:
+    + Detect source files when upstream moves them to a different provider.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Wed, 28 Apr 2010 18:54:54 +1000
+
+python-lockfile (0.8-1) unstable; urgency=low
+
+  * New upstream release (Closes: Bug#539181):
+    + Works around a bug in the Python ‘threading’ module.
+  * debian/control, debian/rules:
+    + Use nicer override handling from later ‘debhelper’ version.
+    + Switch to ‘python-support’ for Python packaging.
+  * debian/control:
+    + Update to ‘Standards-Version: 3.8.2’, no changes required.
+    + Set ‘Vcs-*’ fields to point to active repository.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Thu, 30 Jul 2009 09:58:51 +1000
+
+python-lockfile (0.7-4) unstable; urgency=low
+
+  * Thanks to Julian Andres Klode for feedback that improved this release.
+  * debian/control:
+    + Relax ‘Build-Depends’, don't need the full Python build environment.
+  * debian/copyright:
+    + License patches under same terms as the upstream work.
+  * debian/rules, debian/docs:
+    + Install upstream ‘RELEASE-NOTES’ as a changelog equivalent.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sat, 07 Mar 2009 01:09:02 +1100
+
+python-lockfile (0.7-3) unstable; urgency=low
+
+  * debian/copyright:
+    + Remove comment leaders from license grant text.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Thu, 05 Mar 2009 08:12:09 +1100
+
+python-lockfile (0.7-2) unstable; urgency=low
+
+  * debian/rules:
+    + Tell python-central to clean up properly during prerm.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Wed, 04 Mar 2009 19:35:32 +1100
+
+python-lockfile (0.7-1) unstable; urgency=low
+
+  * Initial release (Closes: Bug#517666).
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Sun, 01 Mar 2009 22:57:01 +1100

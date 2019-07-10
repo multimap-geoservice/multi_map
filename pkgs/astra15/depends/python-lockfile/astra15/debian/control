@@ -1,0 +1,41 @@
+Source: python-lockfile
+Priority: optional
+Maintainer: Ben Finney <bignose@debian.org>
+Section: python
+Homepage: https://pypi.python.org/pypi/lockfile/
+Build-Depends:
+    debhelper,
+    dh-python,
+    python-setuptools,
+    python-all
+Standards-Version: 3.9.8
+VCS-Git: https://notabug.org/bignose/debian_python-lockfile.git
+VCS-Browser: https://notabug.org/bignose/debian_python-lockfile/
+X-Python-Version: >= 2.7
+
+Package: python-lockfile
+Architecture: all
+Depends:
+    ${python:Depends},
+    ${misc:Depends}
+Suggests: python-lockfile-doc
+Description: file locking library for Python — Python 2 library
+ The ‘lockfile’ library exports a ‘LockFile’ class which provides a
+ simple API for locking files.
+ .
+ The appropriate implementation for ‘LockFile’ is chosen automatically
+ based on the OS capabilities for an atomic filesystem operation.
+ These implementations are also available for explicit use as
+ ‘LinkLockFile’ and ‘MkdirLockFile’.
+ .
+ Other back ends are possible with the same semantics. Examples
+ included are:
+  * ‘SQLiteLockFile’, using records in an SQLite database.
+  * ‘PIDLockFile’, using the semantics of a Unix PID file.
+ .
+ Unlike other Python locking libraries (the Windows ‘msvcrt.locking’
+ function, the Unix ‘fcntl.flock’, ‘fcntl.lockf’, and the deprecated
+ ‘posixfile’ module), the API is identical across both Unix (including
+ GNU/Linux and MacOS) and Windows platforms.
+ .
+ This package installs the Python 2 library.

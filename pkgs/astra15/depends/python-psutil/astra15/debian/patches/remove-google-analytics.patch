@@ -1,0 +1,26 @@
+From 1ad15607466c9b94397a0f8dfb1ae32d24ac3ed8 Mon Sep 17 00:00:00 2001
+From: Sandro Tosi <morph@debian.org>
+Date: Thu, 8 Oct 2015 12:44:13 -0700
+Subject: remove Google Analytics tracking from documentation
+
+Origin: vendor
+Forwarded: not-needed
+Last-Update: 2014-05-02
+Patch-Name: remove-google-analytics.patch
+---
+ docs/_template/page.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs/_template/page.html b/docs/_template/page.html
+index 04b47b4..6f699f9 100644
+--- a/docs/_template/page.html
++++ b/docs/_template/page.html
+@@ -42,7 +42,7 @@
+ 
+   (function() {
+     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
++    ga.src = '';
+     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+   })();
+ 

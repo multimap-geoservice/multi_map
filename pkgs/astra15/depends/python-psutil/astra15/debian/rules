@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+
+PY2VERS := $(shell pyversions -s)
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_build:
+	set -e ; \
+	for python in $(PY2VERS); do \
+		$$python setup.py build; \
+		$$python-dbg setup.py build; \
+	done
+
+override_dh_auto_install:
+	set -e ; \
+	for python in $(PY2VERS); do \
+		$$python setup.py install --install-layout=deb --root $(CURDIR)/debian/python-psutil; \
+		$$python-dbg setup.py install --install-layout=deb --root $(CURDIR)/debian/python-psutil-dbg; \
+	done
+	set -e ; \
+
+override_dh_auto_test:
+ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	# run tests
+	-for python in $(PY2VERS); do \
+		echo "running tests on "$$python ; \
+		LIB=$$($$python -c "from distutils.command.build import build ; from distutils.core import Distribution ; b = build(Distribution()) ; b.finalize_options() ; print(b.build_platlib)") ; \
+		PYTHONPATH=$(CURDIR)/$$LIB $$python $(CURDIR)/$$LIB/psutil/tests/runner.py ; \
+		echo "running tests on "$$python-dbg ; \
+		LIB=$$($$python-dbg -c "from distutils.command.build import build ; from distutils.core import Distribution ; b = build(Distribution()) ; b.finalize_options() ; print(b.build_platlib)") ; \
+		PYTHONPATH=$(CURDIR)/$$LIB $$python-dbg $(CURDIR)/$$LIB/psutil/tests/runner.py ; \
+	done
+endif
+
+override_dh_installchangelogs:
+	dh_installchangelogs HISTORY.rst
+
+override_dh_compress:
+	dh_compress -X.py
+
+override_dh_strip:
+ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
+	dh_strip -ppython-psutil --dbg-package=python-psutil-dbg
+endif

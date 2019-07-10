@@ -1,0 +1,93 @@
+Description: Make doctest examples compatible with Python 2 and Python 3.
+ .
+ Existing doctests were written only for Python 2 and have not yet
+ been updated upstream to work with Python 3.
+Author: Ben Finney <bignose@debian.org>
+Last-Update: 2015-05-16
+
+diff --git a/doc/source/index.rst b/doc/source/index.rst
+index f76173d..b4bfd4d 100644
+--- a/doc/source/index.rst
++++ b/doc/source/index.rst
+@@ -224,14 +224,14 @@ This example is the "hello world" for the :mod:`lockfile` package::
+     from lockfile import LockFile
+     lock = LockFile("/some/file/or/other")
+     with lock:
+-        print lock.path, 'is locked.'
++        print(lock.path, "is locked.")
+ 
+ To use this with Python 2.4, you can execute::
+ 
+     from lockfile import LockFile
+     lock = LockFile("/some/file/or/other")
+     lock.acquire()
+-    print lock.path, 'is locked.'
++    print(lock.path, "is locked.")
+     lock.release()
+ 
+ If you don't want to wait forever, you might try::
+@@ -244,7 +244,7 @@ If you don't want to wait forever, you might try::
+ 	except LockTimeout:
+ 	    lock.break_lock()
+ 	    lock.acquire()
+-    print "I locked", lock.path
++    print("I locked", lock.path)
+     lock.release()
+ 
+ You can also insure that a lock is always held when appropriately decorated
+diff --git a/lockfile/__init__.py b/lockfile/__init__.py
+index 419d122..339a205 100644
+--- a/lockfile/__init__.py
++++ b/lockfile/__init__.py
+@@ -12,23 +12,23 @@ Usage:
+ >>> try:
+ ...     lock.acquire()
+ ... except AlreadyLocked:
+-...     print 'somefile', 'is locked already.'
++...     print('somefile', "is locked already.")
+ ... except LockFailed:
+-...     print 'somefile', 'can\\'t be locked.'
++...     print('somefile', "can't be locked.")
+ ... else:
+-...     print 'got lock'
++...     print("got lock")
+ got lock
+->>> print lock.is_locked()
++>>> lock.is_locked()
+ True
+ >>> lock.release()
+ 
+ >>> lock = LockFile('somefile')
+->>> print lock.is_locked()
++>>> lock.is_locked()
+ False
+ >>> with lock:
+-...    print lock.is_locked()
++...    lock.is_locked()
+ True
+->>> print lock.is_locked()
++>>> lock.is_locked()
+ False
+ 
+ >>> lock = LockFile('somefile')
+@@ -37,7 +37,7 @@ False
+ ...     lock.acquire()
+ ...
+ >>> # Though no counter is kept, so you can't unlock multiple times...
+->>> print lock.is_locked()
++>>> lock.is_locked()
+ False
+ 
+ Exceptions:
+
+
+
+Local variables:
+coding: utf-8
+mode: diff
+time-stamp-format: "%:y-%02m-%02d"
+time-stamp-start: "^Last-Update:[         ]+"
+time-stamp-end: "$"
+time-stamp-line-limit: 20
+End:
+vim: fileencoding=utf-8 filetype=diff :

@@ -1,0 +1,15 @@
+python-lockfile (1:0.10.2-1) unstable; urgency=low
+
+  As of version 0.9, the Python API in ‘lockfile’ breaks backward
+  compatibility with older versions. From the upstream release notes:
+
+    * The names of the three main classes have changed as follows:
+
+        LinkFileLock -> LinkLockFile
+        MkdirFileLock -> MkdirLockFile
+        SQLiteFileLock -> SQLiteLockFile
+
+  Any Python code written to use the names from older APIs will break in
+  this version. Such code needs to be migrated to use the new names.
+
+ -- Ben Finney <ben+debian@benfinney.id.au>  Wed, 06 May 2015 10:38:38 +1000
