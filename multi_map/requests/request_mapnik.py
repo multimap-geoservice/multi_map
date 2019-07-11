@@ -9,10 +9,7 @@ try:
 except ImportError:
     from cgi import parse_qs
 
-#try:
-    #import mapnik
-#except ImportError:
-    #import mapnik2 as mapnik
+from mapnik import mapnik_version
 
 from ogcserver.common import Version
 from ogcserver.WMS import BaseWMSFactory
@@ -59,6 +56,7 @@ class Protocol(object):
             self.debug = int(ogcconf.get('server', 'debug'))
         else:
             self.debug = 0
+        self.mapnik_ver = mapnik_version()
             
     def is_xml(self, test_cont):
         try:
@@ -70,19 +68,15 @@ class Protocol(object):
             return False
         else:
             return True
-        
-    def get_mapnik(self, map_name, content):
-        """
-        get map on mapnik xml
-        mapnik.load_map_from_string()
-        """
+    
+    def ogcserver_constructor(self, content):
         try:
+            wms_factory = BaseWMSFactory(self.ogc_configfile)
             if os.path.isfile(content):
-                wms_factory = BaseWMSFactory(self.ogc_configfile)
-                wms_factory.loadXML(content)
-                wms_factory.finalize()
+                wms_factory.loadXML(xmlfile=content)
             else:
-                raise # map file content in DB: to do
+                wms_factory.loadXML(xmlstring=content)  #for testing
+            wms_factory.finalize()
         except:
             self.logging(
                 0, 
@@ -90,11 +84,24 @@ class Protocol(object):
             )
         else:
             return wms_factory
+        
+    def get_mapnik(self, map_name, content):
+        """
+        get map on mapnik xml
+        """
+        if self.mapnik_ver >= 300000:
+            return self.ogcserver_constructor(content)  # serialize mapnik object
+        else:
+            return content  # serialize string
     
     def request_mapnik(self, env, mapdata, que=None):
         """
         render on mapnik request
         """
+        if self.mapnik_ver >= 300000:
+            map_obj = mapdata
+        else:
+            map_obj = self.ogcserver_constructor(mapdata)
         reqparams = {}
         base = True
         for key, value in parse_qs(env['QUERY_STRING'], True).items():
@@ -130,7 +137,7 @@ class Protocol(object):
             ServiceHandlerFactory = getattr(self.ogcserver, service).ServiceHandlerFactory
             servicehandler = ServiceHandlerFactory(
                 self.ogcconf, 
-                mapdata, 
+                map_obj, 
                 onlineresource, 
                 reqparams.get('version', None)
             )
@@ -172,4 +179,16 @@ class Protocol(object):
             que.put(out_response)
 
     def get_metadata(self, map_cont):
-        return {}
+        if self.mapnik_ver >= 300000:
+            map_obj = map_cont
+        else:
+            map_obj = self.ogcserver_constructor(map_cont)
+        return {
+            "layers": [my for my in map_obj.layers], 
+            "aggregatestyles": map_obj.aggregatestyles, 
+            "map_attributes": {
+                my: str(map_obj.map_attributes[my]) 
+                for my 
+                in map_obj.map_attributes
+            }, 
+        }
