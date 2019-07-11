@@ -214,11 +214,22 @@ class Server(object):
             try:
                 response = get(request)
             except:
-                self.loging("SHEDULER ERROR: API is not resolved\n")
+                self.loging(
+                    "SHEDULER ERROR: API is not resolved {}\n".format(ctime())
+                )
             else:
-                if response.json().get('result', False):
+                if isinstance(response.json, dict):
+                    resp_result = response.json
+                else:
+                    resp_result = response.json()
+                    
+                if resp_result.get('result', False):
                     self.loging(
                         "SHEDULER OK: {}\n".format(ctime())
+                    )
+                else:
+                    self.loging(
+                        "SHEDULER ERROR: Output is not standart {}\n".format(ctime())
                     )
     
     def start(self):
