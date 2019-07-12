@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# encoding: utf-8
 
 import os
 import imp
@@ -233,7 +235,10 @@ class MultiWEB(object):
             template = copy.deepcopy(maptemp)
             
         if template:
+            print mapsrc
+            print type(mapsrc)
             template["VARS"]["data"] = mapsrc
+            print template
             return template
         
     def _preserial_fs(self, **kwargs):
@@ -299,13 +304,14 @@ class MultiWEB(object):
                 exts = [kwargs['ext']]
             for file_ in os.listdir(dir_):
                 for ext in exts:
-                    if file_ == "{0}.{1}".format(map_name, ext):
-                        mapsrc = "{0}/{1}".format(dir_, file_)
+                    test_ = "{0}.{1}".format(map_name, ext)
+                    if file_ == test_.decode('utf-8'):
+                        mapsrc = u"{0}/{1}".format(dir_, file_)
                         content = self._create_maptemp_content(mapsrc, maptemp)
                         if content:
                             self.logging(
                                 2,
-                                "INFO: In Dir:{0}, load Map Source {1}".format(
+                                u"INFO: In Dir:{0}, load Map Source {1}".format(
                                     dir_, 
                                     file_
                                 )
