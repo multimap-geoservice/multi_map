@@ -142,7 +142,12 @@ class Protocol(object):
                 pub_map = PubMap()
                 pub_map.load_json(content)
             else:
-                content = ast.literal_eval(content)
+                content = json.loads(
+                        json.dumps(
+                            ast.literal_eval(content), 
+                            ensure_ascii=False
+                    )
+                )
                 pub_map = PubMap(content)
         except:
             self.logging(
@@ -169,7 +174,7 @@ class Protocol(object):
         """
         if isinstance(content, mapscript.mapObj):
             if map_name != "":
-                map_url = "{0}/{1}".format(self.url, map_name)
+                map_url = "{0}/{1}".format(self.url, map_name.encode('utf-8'))
                 content.web.metadata.set("wms_onlineresource", map_url)
                 content.web.metadata.set("wfs_onlineresource", map_url)
                 return content

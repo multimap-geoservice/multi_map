@@ -22,14 +22,14 @@ def init_map(template, fontset, map_, map_type, **kwargs):
             kwargs["password"], 
         )
         builder.mapjson["VARS"]["db_connection"] = db_connection 
-        builder.mapjson["VARS"]["name"] = "osm_{}".format(map_) 
-        builder.mapjson["VARS"]["title"] = "Open Street Map {}".format(map_) 
+        builder.mapjson["VARS"]["name"] = u"ОСМ_{}".format(map_) 
+        builder.mapjson["VARS"]["title"] = u"Открытая карта мира {}".format(map_) 
         builder.mapjson["VARS"]["fontset"] = fontset 
     
     if map_type == "maps_path":
-        map_full_path = "{0}/{1}.json".format(kwargs['maps_path'], map_)
+        map_full_path = "{0}/ОСМ_{1}.json".format(kwargs['maps_path'], map_)
     elif map_type == "maps_path_db":
-        map_full_path = "{0}/{1}.json".format(kwargs['maps_path_db'], map_)
+        map_full_path = "{0}/ОСМ_{1}.json".format(kwargs['maps_path_db'], map_)
     
     if map_type == "maps_db" or map_type == "maps_path_db":
         db_connect = {

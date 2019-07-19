@@ -6,6 +6,7 @@ import imp
 import time
 import copy
 import json
+import codecs
 import importlib
 from multiprocessing import Process, Queue
 from wsgiref.simple_server import make_server, WSGIServer
@@ -172,10 +173,12 @@ class MultiWEB(object):
             self.full_serializer()
             
     def logging(self, debug_layer, outdata):
+        if isinstance(outdata, str):
+            outdata = u'{}'.format(outdata.decode('utf-8'))
         if self.debug >= debug_layer:
             if self.log:
-                with open(self.log, mode='a') as logfile:
-                    logfile.write("{}\n".format(outdata))
+                with codecs.open(self.log, 'a', encoding='utf-8') as logfile:
+                    logfile.write(u"{}\n".format(outdata))
             else:
                 print(outdata)
 
@@ -201,7 +204,7 @@ class MultiWEB(object):
             except Exception as err:
                 self.logging(
                     0,
-                    "ERROR: Request Module:'{0}' is not Loaded\nsys err: {1}".format(
+                    u"ERROR: Request Module:'{0}' is not Loaded\nsys err: {1}".format(
                         req_name, 
                         err
                     )
@@ -235,10 +238,7 @@ class MultiWEB(object):
             template = copy.deepcopy(maptemp)
             
         if template:
-            print mapsrc
-            print type(mapsrc)
             template["VARS"]["data"] = mapsrc
-            print template
             return template
         
     def _preserial_fs(self, **kwargs):
@@ -260,7 +260,7 @@ class MultiWEB(object):
             if file_ext in exts:
                 self.logging(
                     2,
-                    "INFO: In Dir:{0}, add Map name {1}".format(dir_, file_name)
+                    u"INFO: In Dir:{0}, add Map name {1}".format(dir_, file_name)
                 )
                 names.append(file_name)
         return names
@@ -269,6 +269,8 @@ class MultiWEB(object):
         """
         subserializator for fs
         """
+        if isinstance(map_name, str):
+            map_name = u'{}'.format(map_name.decode('utf-8'))
         dir_ = kwargs['path']
         if kwargs.has_key('ext'):
             if isinstance(kwargs['ext'], (list, tuple)):
@@ -279,13 +281,13 @@ class MultiWEB(object):
             exts = self.serial_formats
         for file_ in os.listdir(dir_):
             for ext in exts:
-                if file_ == "{0}.{1}".format(map_name, ext):
-                    content = "{0}/{1}".format(dir_, file_)
+                if file_ == u"{0}.{1}".format(map_name, ext):
+                    content = u"{0}/{1}".format(dir_, file_)
                     cont_format = self._detect_cont_format(content)
                     if cont_format is not None:
                         self.logging(
                             2,
-                            "INFO: In Dir:{0}, load Map File {1}".format(dir_, file_)
+                            u"INFO: In Dir:{0}, load Map File {1}".format(dir_, file_)
                         )
                         return cont_format, content
                 
@@ -293,6 +295,8 @@ class MultiWEB(object):
         """
         subserializator maptemp for fs source list
         """
+        if isinstance(map_name, str):
+            map_name = u'{}'.format(map_name.decode('utf-8'))
         cont_format = "maptemp"
         maptemp = kwargs['template']
         
@@ -304,8 +308,8 @@ class MultiWEB(object):
                 exts = [kwargs['ext']]
             for file_ in os.listdir(dir_):
                 for ext in exts:
-                    test_ = "{0}.{1}".format(map_name, ext)
-                    if file_ == test_.decode('utf-8'):
+                    test_ = u"{0}.{1}".format(map_name, ext)
+                    if file_ == test_:
                         mapsrc = u"{0}/{1}".format(dir_, file_)
                         content = self._create_maptemp_content(mapsrc, maptemp)
                         if content:
@@ -356,7 +360,7 @@ class MultiWEB(object):
             query = '\n'.join(kwargs['query'])
         else:
             query = kwargs['query']
-        SQL = """
+        SQL = u"""
         select query.map_cont
         from (
         {0}
@@ -394,7 +398,7 @@ class MultiWEB(object):
                 query = '\n'.join(kwargs['query'])
             else:
                 query = kwargs['query']
-            SQL = """
+            SQL = u"""
             select query.map_cont
             from (
             {0}
@@ -413,7 +417,7 @@ class MultiWEB(object):
                 if content:
                     self.logging(
                         2,
-                        "INFO: From Database:{0}, load Map Source {1}".format(
+                        u"INFO: From Database:{0}, load Map Source {1}".format(
                             kwargs['connect']['dbname'],
                             map_name
                         )
@@ -447,7 +451,7 @@ class MultiWEB(object):
         if len(nam_dubl) > 0: 
             self.logging(
                 1,
-                "WARINIG: Found dublicate Map Names:{}".format(nam_dubl)
+                u"WARINIG: Found dublicate Map Names:{}".format(nam_dubl)
             )
         if replace:
             all_map_names = nam_uniq + nam_dubl
@@ -492,6 +496,7 @@ class MultiWEB(object):
         
         # find map name
         map_name = "/".join(env['PATH_INFO'].split('/')[1:])
+        map_name = u"{}".format(map_name.decode('utf-8'))
         
         # text debug
         if self.debug >= 1:
@@ -522,12 +527,12 @@ class MultiWEB(object):
                 else:
                     self.logging(
                         0,
-                        "ERROR: Map:'{}' is not serialized".format(map_name)
+                        u"ERROR: Map:'{}' is not serialized".format(map_name)
                     )
                     resp_status = '404 Not Found'
                     resp_type = [('Content-type', 'text/plain')]
                     start_response(resp_status, resp_type)
-                    return [b'MAP:\'{}\' not found'.format(map_name)]
+                    return [b'MAP:\'{}\' not found'.format(map_name.encode('utf-8'))]
             else:
                 # response (mono or multi)
                 if self.multi and self.maps[map_name]['multi']:
@@ -561,7 +566,7 @@ class MultiWEB(object):
                 else:
                     self.logging(
                         0,
-                        "ERROR: Resource:{} error".format(map_name)
+                        u"ERROR: Resource:{} error".format(map_name)
                     )
                     resp_status = '500 Server Error'
                     resp_type = [('Content-type', 'text/plain')]
