@@ -228,6 +228,9 @@ class MultiWEB(object):
         Add mapsrc to VARS[data] maptemp
         """
         template = None
+        if isinstance(mapsrc, str):
+            mapsrc = u"{}".format(mapsrc.decode('utf-8'))
+            
         if isinstance(maptemp, (str, unicode)):
             if os.path.isfile(maptemp):
                 with open(maptemp) as file_:  
