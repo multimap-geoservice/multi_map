@@ -186,9 +186,10 @@ class Protocol(object):
         request = mapscript.OWSRequest()
         mapscript.msIO_installStdoutToBuffer()
         request.loadParamsFromURL(env['QUERY_STRING'])
+        rec_obj = mapdata.clone()
     
         try:
-            status = mapdata.OWSDispatch(request)
+            status = rec_obj.OWSDispatch(request)
         except Exception as err:
             pass
     
