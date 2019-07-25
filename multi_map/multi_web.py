@@ -563,7 +563,7 @@ class MultiWEB(object):
                         if self.maps[map_name].get('timestamp', False):
                             self.maps[map_name]['timestamp'] = int(time.time())
                     resp_status = '200 OK'
-                    resp_type = [('Content-type', response[0])]
+                    resp_type = [('Content-type', str(response[0]))]
                     start_response(resp_status, resp_type)
                     return [response[1]]
                 else:
