@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+export PYBUILD_NAME=owslib
+
+%:
+	dh  $@ --with python2 --buildsystem pybuild --parallel
+
+override_dh_auto_test:
+#skipping tests as they require internet access
+

@@ -1,0 +1,126 @@
+owslib (0.14.0-1) unstable; urgency=medium
+
+  * New upstream version 0.14.0
+
+ -- Johan Van de Wauw <johan@vandewauw.be>  Thu, 12 Jan 2017 21:33:13 +0100
+
+owslib (0.13.0-1) unstable; urgency=medium
+
+  * New upstream version 0.13.0
+
+ -- Johan Van de Wauw <johan@vandewauw.be>  Sun, 25 Sep 2016 10:40:15 +0200
+
+owslib (0.12.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 0.12.0
+  * Refresh patches
+  * Add copyright for debian files/other owners
+
+ -- Johan Van de Wauw <johan@vandewauw.be>  Tue, 13 Sep 2016 21:02:32 +0200
+
+owslib (0.11.2-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Mon, 16 May 2016 11:38:02 +0200
+
+owslib (0.11.1-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+  * Bump Standards-Version to 3.9.8, no changes.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Thu, 12 May 2016 19:48:08 +0200
+
+owslib (0.11.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+  * Update Vcs-Git URL to use HTTPS.
+  * Bump Standards-Version to 3.9.7, no changes.
+  * Enable parallel builds.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Sat, 02 Apr 2016 02:34:10 +0200
+
+owslib (0.10.3-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Fri, 25 Dec 2015 16:26:09 +0100
+
+owslib (0.10.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 0.10.0
+
+ -- Johan Van de Wauw <johan@vandewauw.be>  Wed, 18 Nov 2015 13:59:21 +0100
+
+owslib (0.9.2-1) unstable; urgency=medium
+
+  [ Johan Van de Wauw ]
+  * Update watchfile to github (adds tests+docs)
+  * Skip tests as they require internet access
+  * Add rules for doc package
+  * Add docs package
+  * Fix privacy breaches in docs
+  * Imported Upstream version 0.9.2
+  * Add doc-base + suggests for doc package
+
+  [ Bas Couwenberg ]
+  * Update Vcs-Browser URL to use HTTPS.
+
+ -- Johan Van de Wauw <johan@vandewauw.be>  Mon, 14 Sep 2015 22:18:32 +0200
+
+owslib (0.9.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 0.9.0
+  * Add dependency to python-requests
+  * Add support for Python 3
+  * Add more meaningful copyright holders
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Sat, 20 Jun 2015 20:57:22 +0200
+
+owslib (0.8.13-1) unstable; urgency=medium
+
+  * Move to unstable
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Tue, 26 May 2015 19:53:32 +0200
+
+owslib (0.8.13-1~exp) experimental; urgency=medium
+
+  * Import Upstream version 0.8.13 
+  * Fix Watchfile
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Tue, 17 Feb 2015 19:36:08 +0100
+
+owslib (0.8.12-1~exp) experimental; urgency=medium
+
+  [ Bas Couwenberg ]
+  * Update Vcs-Browser URL to use cgit instead of gitweb.
+  * Add Upstream-Contact to copyright file.
+
+  [ Johan Van de Wauw ]
+  * Imported Upstream version 0.8.12 
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Sun, 28 Dec 2014 20:37:45 +0100
+
+owslib (0.8.10-1) unstable; urgency=medium
+
+  [ Bas Couwenberg ]
+  * Add Vcs-* URLs.
+  * Fix copyright-format version.
+
+  [ Johan Van de Wauw ]
+  * Update to new version
+  * Imported Upstream version 0.8.10
+  * Fix error in copyright text (cfr changed license.txt)
+  * Bump standards / update VCS browser url
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Fri, 17 Oct 2014 00:36:58 +0200
+
+owslib (0.8.9-1) unstable; urgency=medium
+
+  * Initial upload (closes: #762869)
+
+ -- Johan Van de Wauw <johan.vandewauw@gmail.com>  Thu, 25 Sep 2014 21:32:43 +0200
