@@ -26,6 +26,7 @@ class LightAPI(MultiWEB):
         create map name 'api'
         """
         # invariable name for api
+        self.invariable_name += ['api']
         self.api2maps = {
             'api': {
                 "request": self.request_api,
@@ -35,7 +36,6 @@ class LightAPI(MultiWEB):
             }
         }
         self.maps.update(self.api2maps)
-        self.invariable_name += self.api2maps.keys()
         """
         API schema dict
             'api key name':{

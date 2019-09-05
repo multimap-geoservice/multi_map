@@ -20,7 +20,6 @@ class Protocol(object):
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
        
-        # default protocol variables
         self.url = url 
         self.logging = logging
         self.proto_schema = {
@@ -46,8 +45,6 @@ class Protocol(object):
                 "enable": True,
                 },
         }
-        self.proto_maps = {}
-        # next
         self.def_metadata_keys = [
             "wms_title", 
             "wfs_title", 

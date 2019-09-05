@@ -30,8 +30,7 @@ class Protocol(object):
     
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
-       
-        # default protocol variables
+        
         self.url = url 
         self.home_html = None
         self.logging = logging
@@ -44,7 +43,6 @@ class Protocol(object):
                 "enable": True,
                 },
         }
-        self.proto_maps = {}
         # Load OGCServver config
         self.ogcserver = importlib.import_module('ogcserver')
         if os.path.isfile(config):

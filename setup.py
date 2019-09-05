@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='multi_map', 
-    version='0.3', 
+    version='0.4', 
     packages=[
         'multi_map',
         'multi_map.requests', 
