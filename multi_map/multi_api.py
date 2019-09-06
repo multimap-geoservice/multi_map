@@ -375,6 +375,15 @@ class LightAPI(MultiWEB):
             }
             content_type = 'application/json'
             result = b'{}'.format(json.dumps(out))
+        
+        if json.loads(result)["result"]:
+            resp_status = 200
+        else:
+            resp_status = 400
             
-        out_req = (content_type, result)
+        out_req = (
+            resp_status, 
+            content_type, 
+            result
+        )
         return out_req

@@ -186,19 +186,49 @@ class Protocol(object):
         """
         render on mapserver mapscript request
         """
+        q_str = {
+            my.split("=")[0].upper(): my.split("=")[1]
+            for my 
+            in env['QUERY_STRING'].split('&')
+            if "=" in my
+        }
+        serv_ver = [q_str.get('SERVICE', False), q_str.get('VERSION', False)]
         request = mapscript.OWSRequest()
         mapscript.msIO_installStdoutToBuffer()
         request.loadParamsFromURL(env['QUERY_STRING'])
         rec_obj = mapdata.clone()
     
         try:
-            status = rec_obj.OWSDispatch(request)
+            status_id = rec_obj.OWSDispatch(request)
         except Exception as err:
-            pass
+            print "OWSDispatch Error: {}".format(err)
+            err_def = unicode(err).split(':')[0]
+            status_id = None
     
         content_type = mapscript.msIO_stripStdoutBufferContentType()
         content = mapscript.msIO_getStdoutBufferBytes()
-        out_response = (content_type, content)
+        mapscript.msIO_resetHandlers()
+        
+        # status:
+        if status_id == mapscript.MS_SUCCESS:
+            status = 200
+        elif status_id == mapscript.MS_FAILURE:
+            status = 400
+            if serv_ver == ['WFS', '2.0.0']:
+                content = '\n'.join(content.split('\n')[2:])
+        elif status_id is None:
+            if serv_ver[0] == "WMS" and err_def == "msPostGISLayerGetExtent()":
+                status = 200
+            elif serv_ver == ['WFS', '1.0.0'] and err_def == "msWFSGetFeature()":
+                status = 400
+            else:
+                status = 500
+        
+        out_response = (
+            status, 
+            content_type, 
+            content
+        )
         if que is None:
             return out_response
         else:

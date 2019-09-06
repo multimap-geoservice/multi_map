@@ -27,7 +27,7 @@ class Protocol(object):
     Class for serialization & render maps:
     mapnik as OGCServer
     """
-    
+
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
        
@@ -77,14 +77,22 @@ class Protocol(object):
         try:
             wms_factory = BaseWMSFactory(self.ogc_configfile)
             if os.path.isfile(content):
-                wms_factory.loadXML(xmlfile=content)
+                if isinstance(content, unicode):
+                    mapnik_file = str(content.encode("utf-8"))
+                else:
+                    mapnik_file = content
+ 
+                wms_factory.loadXML(xmlfile=mapnik_file)
             else:
                 wms_factory.loadXML(xmlstring=content)  #for testing
             wms_factory.finalize()
-        except:
+        except Exception as err:
             self.logging(
                 0, 
-                "ERROR: Content {} not init as Mapnik FILE".format(content)
+                "ERROR: Content {0} not init as Mapnik FILE\n{1}".format(
+                    content, 
+                    err
+                )
             )
         else:
             return wms_factory
@@ -176,7 +184,11 @@ class Protocol(object):
                 eh = ExceptionHandler111(self.debug,base,self.home_html)
             response = eh.getresponse(reqparams)
             
-        out_response = (response.content_type, response.content)
+        out_response = (
+            int(response.status_code), 
+            response.content_type, 
+            response.content
+        )
         if que is None:
             return out_response
         else:

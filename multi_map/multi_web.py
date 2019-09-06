@@ -34,6 +34,12 @@ class MultiWEB(object):
     # log - False or path
     log = False
     # Enviroments for request
+    RESP_STATUS = {
+        200: '200 OK',
+        400: '400 BAD REQUEST',
+        404: '404 NOT FOUND',
+        500: '500 SERVER ERROR',
+    }
     MAPSERV_ENV = [
         'CONTENT_LENGTH',
         'CONTENT_TYPE',
@@ -532,7 +538,7 @@ class MultiWEB(object):
                         0,
                         u"ERROR: Map:'{}' is not serialized".format(map_name)
                     )
-                    resp_status = '404 Not Found'
+                    resp_status = self.RESP_STATUS[404]
                     resp_type = [('Content-type', 'text/plain')]
                     start_response(resp_status, resp_type)
                     return [b'MAP:\'{}\' not found'.format(map_name.encode('utf-8'))]
@@ -562,16 +568,22 @@ class MultiWEB(object):
                     if self.maps.has_key(map_name):
                         if self.maps[map_name].get('timestamp', False):
                             self.maps[map_name]['timestamp'] = int(time.time())
-                    resp_status = '200 OK'
-                    resp_type = [('Content-type', str(response[0]))]
-                    start_response(resp_status, resp_type)
-                    return [response[1]]
+                    resp_status = str(response[0])
+                    resp_type = [('Content-type', str(response[1]))]
+                    start_response(
+                        self.RESP_STATUS.get(
+                            int(resp_status), 
+                            self.RESP_STATUS[200]
+                        ), 
+                        resp_type
+                    )
+                    return [response[-1]]
                 else:
                     self.logging(
                         0,
                         u"ERROR: Resource:{} error".format(map_name)
                     )
-                    resp_status = '500 Server Error'
+                    resp_status = self.RESP_STATUS[500]
                     resp_type = [('Content-type', 'text/plain')]
                     start_response(resp_status, resp_type)
                     return [b'Resource:{} error'.format(map_name)]
