@@ -78,10 +78,9 @@ class Protocol(object):
             wms_factory = BaseWMSFactory(self.ogc_configfile)
             if os.path.isfile(content):
                 if isinstance(content, unicode):
-                    mapnik_file = str(content.encode("utf-8"))
+                    mapnik_file = content.encode("utf-8")
                 else:
                     mapnik_file = content
- 
                 wms_factory.loadXML(xmlfile=mapnik_file)
             else:
                 wms_factory.loadXML(xmlstring=content)  #for testing
@@ -123,10 +122,10 @@ class Protocol(object):
         if self.ogcconf.has_option_with_value('service', 'baseurl'):
             onlineresource = '%s' % self.ogcconf.get('service', 'baseurl')
         else:
-            onlineresource = 'http://%s%s%s?' % (
-                env['HTTP_HOST'], 
-                env['SCRIPT_NAME'], 
-                env['PATH_INFO']
+            onlineresource = u'http://%s%s%s?' % (
+                env['HTTP_HOST'].decode('utf-8'), 
+                env['SCRIPT_NAME'].decode('utf-8'), 
+                env['PATH_INFO'].decode('utf-8')
             )
 
         try:
