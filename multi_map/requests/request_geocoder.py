@@ -391,7 +391,7 @@ class GeoCoder(WfsFilter):
         self.layer_property_cap = self.capabilities["layer_property"]
         self.layer_property_use = None
         self.geom_property_cap = None
-        self.map_name_use = None  # to do !!!
+        self.map_name_use = None
         self.response = []
         
     def echo2json(self, dict_):
@@ -770,7 +770,7 @@ class GeoCoder(WfsFilter):
 
 
 ########################################################################
-class Protocol(GeoCoder):
+class Protocol(object):
     """
     Tiny gcoder server
     """
@@ -794,58 +794,112 @@ class Protocol(GeoCoder):
     ]
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
+        """
+        Config file for geocoder:
+        {
+            "map name": "url to wfs server"(optionaly),
+            "api": "url to multi_map api"(optionaly)
+        }
+        """
         # default protocol variables
         self.url = url 
         self.home_html = None
         self.logging = logging
         self.proto_schema = {}
-        #self.proto_schema = {
-            #"xml": {
-                #"test": self.is_xml,
-                #"get": self.get_mapnik,
-                #"request": self.request_mapnik,
-                #"metadata": self.get_metadata,
-                #"enable": True,
-                #},
-        #}
         self.proto_maps = {
             'geocoder': {
-                "request": self.get_response,
-                "content": 'api',
+                "request": self.request_geocoder_service,
+                "content": 'geocoder',
                 "timestamp": 0,
                 "multi": False
             }
         }
         # next
-        self.gk_commands = {
-            "GetCapabilites": self.get_capabilities, 
-            "GetInfo": self.get_info, 
-            "GetHelp": self.get_help, 
-            "GetPropperties": self.get_properties,
+        # load config file
+        self.config = {}
+        if os.path.isfile(config):
+            try:
+                self.config = json.load()
+            except Exception as err:
+                self.logging(
+                    0, 
+                    "ERROR: Geocoder config '{0}' is not loaded\n{1}".format(
+                        config, 
+                        err
+                    )
+                )
+        # geocoder service default comands
+        self.gk_srv_com = {
+            "help": self.get_help,
+            "maps": self.get_maps,
+            "update": self.set_update,
         }
-        GeoCoder.__init__(self)
+        # geocoder map default comands    
+        self.gk_map_com = {
+            "GetCapabilites": "get_capabilities", 
+            "GetInfo": "get_info", 
+            "GetHelp": "get_help", 
+            "GetPropperties": "get_properties",
+        }
+        
+    def set_update(self):
+        # ini maps from GeoCoder
+        pass
     
-    def request_geocoder(self, env, mapdata, que=None):
-        print "-" * 30
-        for key in self.MAPSERV_ENV:
-            if key in env:
-                os.environ[key] = env[key]
-                print "{0}='{1}'".format(key, env[key])
-            else:
-                os.unsetenv(key)
-        print "-" * 30
-   
-        status = '200 OK'
+    def get_maps(self):
+        # add in map for geocoder: metadata:{}
+        pass
+
+    def get_help(self):
+        pass
+    
+    def request_geocoder_service(self, env, mapdata, que=None):
+        status = 200
         if not env["QUERY_STRING"]:
-            gk_comm_list = [my for my in self.gk_commands]
+            gk_comm_list = [my for my in self.gk_srv_com]
+            resp = json.dumps(
+                gk_comm_list,
+                ensure_ascii=False
+            )
+        elif self.gk_srv_com.has_key(env["QUERY_STRING"]):
+            resp = json.dumps(
+                self.gk_map_com[env["QUERY_STRING"]](), 
+                ensure_ascii=False
+            )
+        else:
+            status = 400
+            resp = json.dumps(
+                {
+                    "ERROR": u"Command '{}' not found".format(env["QUERY_STRING"]),
+                }, 
+                ensure_ascii=False
+            )
+    
+        content = b'{}'.format(resp.encode('utf-8'))
+        content_type = 'application/json'
+
+        out_response = (
+            status, 
+            content_type, 
+            content
+        )
+        if que is None:
+            return out_response
+        else:
+            que.put(out_response)
+
+    def request_geocoder_map(self, env, mapdata, que=None):
+        status = 200
+        if not env["QUERY_STRING"]:
+            gk_comm_list = [my for my in self.gk_map_com]
             gk_comm_list.append({})
             resp = json.dumps(
                 gk_comm_list,
                 ensure_ascii=False
             )
-        elif self.gk_commands.has_key(env["QUERY_STRING"]):
+        elif self.gk_map_com.has_key(env["QUERY_STRING"]):
             resp = json.dumps(
-                self.gk_commands[env["QUERY_STRING"]](), 
+                self.gk_map_com[env["QUERY_STRING"]](), 
                 ensure_ascii=False
             )
         else:
@@ -856,14 +910,27 @@ class Protocol(GeoCoder):
                     ensure_ascii=False
                 )
             except Exception as err:
-                status = '500 Server Error'
+                status = 500
                 resp = json.dumps(
                     {
                         "ERROR": u"{}".format(err),
                     }, 
                     ensure_ascii=False
                 )
+                self.logging(
+                    0, 
+                    "ERROR: Geocoder failed:\n{}".format(err)
+                )
     
-        result = b'{}'.format(resp.encode('utf-8'))
-        #start_response(status, [('Content-type', 'application/json')])
-        return [result]
+        content = b'{}'.format(resp.encode('utf-8'))
+        content_type = 'application/json'
+
+        out_response = (
+            status, 
+            content_type, 
+            content
+        )
+        if que is None:
+            return out_response
+        else:
+            que.put(out_response)
