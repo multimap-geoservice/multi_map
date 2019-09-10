@@ -88,9 +88,9 @@ class Protocol(object):
         except Exception as err:
             self.logging(
                 0, 
-                "ERROR: Content {0} not init as Mapnik FILE\n{1}".format(
+                u"ERROR: Content {0} not init as Mapnik FILE\n{1}".format(
                     content, 
-                    err
+                    err.__str__().decode("utf-8")
                 )
             )
         else:

@@ -292,9 +292,6 @@ class LightAPI(MultiWEB):
             'clean': clean_map_nam,
         }
     
-    def metadata4mapnik(self, map_cont):
-        return {}
-        
     def request_api(self, env, data):
         # find query string value
         query_string = env['QUERY_STRING'].split('&')

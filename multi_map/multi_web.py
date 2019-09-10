@@ -207,6 +207,8 @@ class MultiWEB(object):
                     config
                 )
                 proto_schema = protcol.proto_schema 
+                self.maps.update(protcol.proto_maps)
+                self.invariable_name += protcol.proto_maps.keys()
             except Exception as err:
                 self.logging(
                     0,
