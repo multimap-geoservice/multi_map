@@ -23,6 +23,7 @@ from owslib.fes import (
     BBox
 )
 import urllib
+import requests
 
 ########################################################################
 class WfsFilter(object):
@@ -797,12 +798,10 @@ class Protocol(object):
         """
         Config file for geocoder:
         {
-            "map name": "url to wfs server"(optionaly),
-            "api": "url to multi_map api"(optionaly)
+            "map name": "url to wfs requests"(optionaly),
         }
         """
         # default protocol variables
-        self.url = url 
         self.home_html = None
         self.logging = logging
         self.proto_schema = {}
@@ -815,6 +814,22 @@ class Protocol(object):
             }
         }
         # next
+        self.api_url = u"{}/api?".format(url)
+        try:
+            api_resp = requests.get(self.api_url)
+        except Exception as err:
+            raise Exception(
+                u"ERROR: URL API not found!\n{}".format(err)
+            )
+        else:
+            if api_resp.status_code != 200:
+                raise Exception(
+                    u"ERROR: API is not valid, status code:{}".format(
+                        api_resp.status_code
+                    )
+                )
+        self.map_names = []
+        
         # load config file
         self.config = {}
         if os.path.isfile(config):
@@ -822,59 +837,35 @@ class Protocol(object):
                 self.config = json.load()
             except Exception as err:
                 self.logging(
-                    0, 
-                    "ERROR: Geocoder config '{0}' is not loaded\n{1}".format(
+                    1, 
+                    "WARNING: Geocoder config '{0}' is not loaded\n{1}".format(
                         config, 
                         err
                     )
                 )
-        # geocoder service default comands
-        self.gk_srv_com = {
-            "help": self.get_help,
-            "maps": self.get_maps,
-            "update": self.set_update,
-        }
+        elif config:
+            self.logging(
+                1, 
+                "WARNING: Geocoder config '{}' not found in fs".format(config)
+            )
+            
         # geocoder map default comands    
-        self.gk_map_com = {
+        self.gc_map_com = {
             "GetCapabilites": "get_capabilities", 
             "GetInfo": "get_info", 
             "GetHelp": "get_help", 
             "GetPropperties": "get_properties",
         }
+    
+    def geocoder_init(self):
+        pass
         
-    def set_update(self):
-        # ini maps from GeoCoder
-        pass
-    
-    def get_maps(self):
-        # add in map for geocoder: metadata:{}
-        pass
-
-    def get_help(self):
-        pass
-    
     def request_geocoder_service(self, env, mapdata, que=None):
+        resp = json.dumps(
+            self.map_names,
+            ensure_ascii=False
+        )
         status = 200
-        if not env["QUERY_STRING"]:
-            gk_comm_list = [my for my in self.gk_srv_com]
-            resp = json.dumps(
-                gk_comm_list,
-                ensure_ascii=False
-            )
-        elif self.gk_srv_com.has_key(env["QUERY_STRING"]):
-            resp = json.dumps(
-                self.gk_map_com[env["QUERY_STRING"]](), 
-                ensure_ascii=False
-            )
-        else:
-            status = 400
-            resp = json.dumps(
-                {
-                    "ERROR": u"Command '{}' not found".format(env["QUERY_STRING"]),
-                }, 
-                ensure_ascii=False
-            )
-    
         content = b'{}'.format(resp.encode('utf-8'))
         content_type = 'application/json'
 
@@ -891,15 +882,15 @@ class Protocol(object):
     def request_geocoder_map(self, env, mapdata, que=None):
         status = 200
         if not env["QUERY_STRING"]:
-            gk_comm_list = [my for my in self.gk_map_com]
+            gk_comm_list = [my for my in self.gc_map_com]
             gk_comm_list.append({})
             resp = json.dumps(
                 gk_comm_list,
                 ensure_ascii=False
             )
-        elif self.gk_map_com.has_key(env["QUERY_STRING"]):
+        elif self.gc_map_com.has_key(env["QUERY_STRING"]):
             resp = json.dumps(
-                self.gk_map_com[env["QUERY_STRING"]](), 
+                self.gc_map_com[env["QUERY_STRING"]](), 
                 ensure_ascii=False
             )
         else:

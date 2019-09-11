@@ -75,7 +75,8 @@ class MultiWEB(object):
     # default map requests list
     map_requests = [
         'multi_map.requests.request_mapscript', 
-        'multi_map.requests.request_mapnik'
+        'multi_map.requests.request_mapnik', 
+        'multi_map.requests.request_geocoder', 
     ]
     # config files for map requests
     req_configs = {}
@@ -172,7 +173,8 @@ class MultiWEB(object):
         "metadata": return matadata dict
         "enable": bool flag for use in serialize
         """
-        #self.serial_formats = {}
+        self.serial_formats = {}
+        self.map_requests_status = {my: False for my in self.map_requests}
         self.init_map_requests() 
 
         if self.fullserial:
@@ -192,8 +194,8 @@ class MultiWEB(object):
         if req_name:
             map_requests = [req_name]
         else:
-            map_requests = self.map_requests
-        self.serial_formats = {}
+            map_requests = self.map_requests_status.keys()
+        #self.serial_formats = {}
         result = {}
         for req_name in map_requests:
             try:
@@ -213,6 +215,7 @@ class MultiWEB(object):
                 proto_schema = protcol.proto_schema
                 proto_maps =  protcol.proto_maps
             except Exception as err:
+                self.map_requests_status[req_name] = False
                 self.logging(
                     0,
                     u"ERROR: Request Module:'{0}' is not loaded\nsys err: {1}".format(
@@ -230,6 +233,7 @@ class MultiWEB(object):
                 self.serial_formats.update(proto_schema)
                 self.maps.update(proto_maps)
                 self.invariable_name += protcol.proto_maps.keys()
+                self.map_requests_status[req_name] = True
                 self.logging(
                     3,
                     u"INFO: Request Module:'{}' is loaded".format(

@@ -218,7 +218,7 @@ class LightAPI(MultiWEB):
         else:
             return {
                 'result': True,
-                'requests': self.map_requests,
+                'requests init': self.map_requests_status,
             }
             
     def api_maps(self, **kwargs):
