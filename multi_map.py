@@ -275,6 +275,8 @@ class Server(object):
             self.lapi.map_requests = self.config["requests"]
         if self.config.has_key("configs"):
             self.lapi.req_configs = self.config["configs"]
+        if self.config.has_key("debug"):
+            self.lapi.debug = self.config["debug"]
        
         self.web = self.lapi(**self.item_args)
                 

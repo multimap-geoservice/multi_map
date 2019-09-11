@@ -80,6 +80,13 @@ class LightAPI(MultiWEB):
                     "enable": bool,
                     },
                 },
+            "requests": {
+                "obj": self.api_requests,
+                "opts": {
+                    "name": str,
+                    "reload": bool,
+                    },
+                },
             "maps": {
                 "obj": self.api_maps,
                 "opts": {
@@ -192,6 +199,27 @@ class LightAPI(MultiWEB):
         for key in all_formats:
             out['formats'][key] = all_formats[key]['enable']
         return out
+    
+    def api_requests(self, **kwargs):
+        if kwargs.has_key('reload'):
+            if kwargs.has_key('name'):
+                out_status = self.init_map_requests(kwargs['name'])
+            else:
+                out_status = self.init_map_requests()
+ 
+            if False in out_status.values():
+                result = False
+            else:
+                result = True
+            return {
+                'result': result,
+                'requests reload': out_status,
+            }
+        else:
+            return {
+                'result': True,
+                'requests': self.map_requests,
+            }
             
     def api_maps(self, **kwargs):
         out = {}

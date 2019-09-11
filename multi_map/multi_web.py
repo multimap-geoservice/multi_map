@@ -188,10 +188,14 @@ class MultiWEB(object):
             else:
                 print(outdata)
 
-    def init_map_requests(self):
+    def init_map_requests(self, req_name=None):
+        if req_name:
+            map_requests = [req_name]
+        else:
+            map_requests = self.map_requests
         self.serial_formats = {}
-        self.map_req_objs = []
-        for req_name in self.map_requests:
+        result = {}
+        for req_name in map_requests:
             try:
                 if os.path.isfile(req_name):
                     map_req = imp.load_source(
@@ -206,20 +210,34 @@ class MultiWEB(object):
                     self.logging, 
                     config
                 )
-                proto_schema = protcol.proto_schema 
-                self.maps.update(protcol.proto_maps)
-                self.invariable_name += protcol.proto_maps.keys()
+                proto_schema = protcol.proto_schema
+                proto_maps =  protcol.proto_maps
             except Exception as err:
                 self.logging(
                     0,
-                    u"ERROR: Request Module:'{0}' is not Loaded\nsys err: {1}".format(
+                    u"ERROR: Request Module:'{0}' is not loaded\nsys err: {1}".format(
                         req_name, 
                         err
                     )
                 )
+                result[req_name] = False
             else:
+                if proto_schema:
+                    for map_name in self.maps.keys():
+                        for map_format in proto_schema.keys():
+                            if self.maps[map_name].get("format", False) == map_format:
+                                del(self.maps[map_name])
                 self.serial_formats.update(proto_schema)
-                self.map_req_objs.append(protcol)
+                self.maps.update(proto_maps)
+                self.invariable_name += protcol.proto_maps.keys()
+                self.logging(
+                    3,
+                    u"INFO: Request Module:'{}' is loaded".format(
+                        req_name, 
+                    )
+                )
+                result[req_name] = True
+        return result
              
     def _detect_cont_format(self, cont):
         """
