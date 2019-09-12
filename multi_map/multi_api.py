@@ -23,7 +23,7 @@ class LightAPI(MultiWEB):
     map_requests = MultiWEB.map_requests + [
         'multi_map.map_requests.request_geocoder', 
     ]
-    map_requests_drop_loop = 10
+    map_requests_drop_loop = 1
     
     #----------------------------------------------------------------------
     def __init__(self, *args, **kwargs):

@@ -379,12 +379,23 @@ class GeoCoder(WfsFilter):
     
 
     #----------------------------------------------------------------------
-    def __init__(self, wfs_url='http://localhost:3007', debug=False):
+    def __init__(self, url='http://localhost:3007', map_name='', debug=False):
         WfsFilter.__init__(self)
+        wfs_url = u"{0}/{1}".format(url, map_name)
         self.debug = debug
-        self.wfs = WebFeatureService(wfs_url, version=self.wfs_ver)
-        self.capabilities = self.get_capabilities()
-        self._set_def_resp_params()
+        self.map_name_use = map_name
+        try:
+            self.wfs = WebFeatureService(wfs_url, version=self.wfs_ver)
+        except Exception as err:
+            raise Exception(
+                u"WFS is not support in '{0}'\n{1}".format(
+                    wfs_url, 
+                    err
+                )
+            )
+        else:
+            self.capabilities = self.get_capabilities()
+            self._set_def_resp_params()
         
     def _set_def_resp_params(self):
         self.epsg_code_cap = self.capabilities["epsg_code"]
@@ -392,7 +403,6 @@ class GeoCoder(WfsFilter):
         self.layer_property_cap = self.capabilities["layer_property"]
         self.layer_property_use = None
         self.geom_property_cap = None
-        self.map_name_use = None
         self.response = []
         
     def echo2json(self, dict_):
@@ -793,6 +803,11 @@ class Protocol(object):
         'SERVER_NAME', 
         'SERVER_PORT'
     ]
+    valid_map_formats = [
+        "map", 
+        "json"
+    ]
+    wfs_maps = []
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
         """
@@ -814,7 +829,39 @@ class Protocol(object):
             }
         }
         # next
+        self.url = url
         self.api_url = u"{}/api?".format(url)
+        # geocoder map default comands    
+        self.gc_map_com = {
+            "GetCapabilites": "get_capabilities", 
+            "GetInfo": "get_info", 
+            "GetHelp": "get_help", 
+            "GetPropperties": "get_properties",
+        }
+        self.geocoder_init(config)
+    
+    def geocoder_init(self, config=''):
+        # load config file
+        self.config = {}
+        if os.path.isfile(config):
+            try:
+                self.config = json.load()
+            except Exception as err:
+                self.logging(
+                    1, 
+                    u"WARNING: Geocoder config '{0}' is not loaded\n{1}".format(
+                        config, 
+                        err
+                    )
+                )
+        elif config:
+            self.logging(
+                1, 
+                u"WARNING: Geocoder config '{}' not found in fs".format(config)
+            )
+
+        # test api
+        valid_maps = []
         try:
             api_resp = requests.get(self.api_url)
         except Exception as err:
@@ -828,41 +875,49 @@ class Protocol(object):
                         api_resp.status_code
                     )
                 )
-        self.map_names = []
-        
-        # load config file
-        self.config = {}
-        if os.path.isfile(config):
-            try:
-                self.config = json.load()
-            except Exception as err:
-                self.logging(
-                    1, 
-                    "WARNING: Geocoder config '{0}' is not loaded\n{1}".format(
-                        config, 
-                        err
-                    )
+            else:  
+                serialize = requests.get(
+                    "{}serialize".format(self.api_url)
                 )
-        elif config:
-            self.logging(
-                1, 
-                "WARNING: Geocoder config '{}' not found in fs".format(config)
-            )
-            
-        # geocoder map default comands    
-        self.gc_map_com = {
-            "GetCapabilites": "get_capabilities", 
-            "GetInfo": "get_info", 
-            "GetHelp": "get_help", 
-            "GetPropperties": "get_properties",
-        }
-    
-    def geocoder_init(self):
-        pass
+                if serialize.status_code == 200:
+                    all_maps = requests.get(
+                        "{}maps".format(self.api_url)
+                    )
+                    if all_maps.status_code == 200:
+                        out_maps = all_maps.json()
+                        valid_maps = [
+                            my
+                            for my
+                            in out_maps["maps"]
+                            if out_maps["maps"][my]["format"] in self.valid_map_formats
+                        ]
+        
+        # load geocoser objs
+        for test_map in valid_maps:
+            try:
+                gc_obj = GeoCoder(url=self.url, map_name=test_map)
+            except:
+                pass
+            else:
+                self.wfs_maps.append(test_map)
+                gc_map_name = u"geocoder/{}".format(test_map)
+                map_dict = {
+                    gc_map_name: {
+                    "request": self.request_geocoder_map,
+                    "content": gc_obj,
+                    "timestamp": 0,
+                    "multi": False
+                    }
+                }
+                self.proto_maps.update(map_dict)
+                self.logging(
+                    3, 
+                    u"INFO: Map '{}' append to Geocoder".format(test_map)
+                )
         
     def request_geocoder_service(self, env, mapdata, que=None):
         resp = json.dumps(
-            self.map_names,
+            self.wfs_maps,
             ensure_ascii=False
         )
         status = 200
