@@ -1,10 +1,10 @@
 {
     "requests":[
-        "multi_map.requests.request_mapscript",
-        "multi_map.requests.request_mapnik"
+        "multi_map.map_requests.request_mapscript",
+        "multi_map.map_requests.request_mapnik"
     ],
     "configs":{
-        "multi_map.requests.request_mapnik": "ogcserver.conf"
+        "multi_map.map_requests.request_mapnik": "ogcserver.conf"
     },
     "sources":[
         {

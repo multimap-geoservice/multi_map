@@ -6,6 +6,9 @@ import time
 import ast
 import copy
 import json
+import requests
+from time import sleep
+from multiprocessing import Process
 
 from multi_web import MultiWEB
 
@@ -15,7 +18,13 @@ class LightAPI(MultiWEB):
     """
     Light API for MultiWEB
     """
-
+    
+    # add API based map requests
+    map_requests = MultiWEB.map_requests + [
+        'multi_map.map_requests.request_geocoder', 
+    ]
+    map_requests_drop_loop = 10
+    
     #----------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         """
@@ -112,6 +121,49 @@ class LightAPI(MultiWEB):
                 },
             }
     
+    def _init_modules_proc(self):
+        map_reqests_api = []
+        for req_module in self.map_requests:
+            map_reqests_api.append (
+                "{0}/api?requests&name={1}&reload=1".format(
+                    self.url,
+                    req_module, 
+                )
+            )
+        drops = 0
+        while True:
+            sleep(1)
+            req_loop = copy.copy(map_reqests_api)
+            for request in req_loop:
+                try:
+                    response = requests.get(request)
+                except:
+                    pass
+                else:
+                    if response.status_code == 200:
+                        map_reqests_api.remove(request)
+            if not map_reqests_api or drops >= self.map_requests_drop_loop:
+                if drops >= self.map_requests_drop_loop:
+                    self.logging(
+                        0, 
+                        "ERROR: Load Request modules is fail"
+                    )
+                else:
+                    self.logging(
+                        3, 
+                        "INFO: Load all Request modules"
+                    )
+                break
+            else:
+                drops += 1
+    
+    def init_modules(self):
+        sheduler = Process(
+            target=self._init_modules_proc, 
+            name="init_modules", 
+        )
+        sheduler.start()
+        
     def api_help(self, **kwargs):
         """
         default api method:

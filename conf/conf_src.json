@@ -1,6 +1,6 @@
 {
     "configs":{
-        "multi_map.requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf"
+        "multi_map.map_requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf"
     },
     "sources":[
         {

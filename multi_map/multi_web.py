@@ -74,9 +74,8 @@ class MultiWEB(object):
     invariable_name = []
     # default map requests list
     map_requests = [
-        'multi_map.requests.request_mapscript', 
-        'multi_map.requests.request_mapnik', 
-        'multi_map.requests.request_geocoder', 
+        'multi_map.map_requests.request_mapscript', 
+        'multi_map.map_requests.request_mapnik', 
     ]
     # config files for map requests
     req_configs = {}
@@ -175,10 +174,7 @@ class MultiWEB(object):
         """
         self.serial_formats = {}
         self.map_requests_status = {my: False for my in self.map_requests}
-        self.init_map_requests() 
 
-        if self.fullserial:
-            self.full_serializer()
             
     def logging(self, debug_layer, outdata):
         if isinstance(outdata, str):
@@ -331,6 +327,8 @@ class MultiWEB(object):
         if isinstance(map_name, str):
             map_name = u'{}'.format(map_name.decode('utf-8'))
         cont_format = "maptemp"
+        if not self.serial_formats.has_key(cont_format):
+            return
         maptemp = kwargs['template']
         
         if self.serial_formats[cont_format]['test'](maptemp):
@@ -424,6 +422,8 @@ class MultiWEB(object):
         subserializator maptemp for pgsql source list
         """
         cont_format = "maptemp"
+        if not self.serial_formats.has_key(cont_format):
+            return
         maptemp = kwargs['template']
         
         if self.serial_formats[cont_format]['test'](maptemp):
@@ -612,10 +612,17 @@ class MultiWEB(object):
                     start_response(resp_status, resp_type)
                     return [b'Resource:{} error'.format(map_name)]
 
+    def init_modules(self):
+        self.init_map_requests() 
+
+        if self.fullserial:
+            self.full_serializer()
+
     def wsgi(self):
         """
-        simple wsgi server
+        Start simple wsgi server
         """
+        self.init_modules()
         httpd = make_server(
             self.wsgi_host,
             self.wsgi_port,
