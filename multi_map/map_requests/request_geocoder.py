@@ -113,7 +113,14 @@ class WfsFilter(object):
                             "Error: filter option '{}' not found".format(f_opt)
                         )
         if bool_tag:
-            if len(content) != 1 or (len(content) == 1 and len(content.values()[0]) != 1):
+            condit_0 = []
+            condit_0.append(len(content) != 1)
+            condit_1 = []
+            condit_1.append(len(content) == 1)
+            condit_1.append(len(content.values()[0]) != 1)
+            condit_1.append(content.keys()[0] not in self.filter_tags.keys())
+            condit_0.append(False not in condit_1)
+            if True in condit_0:
                 all_filter = self.filter_tags['and'](all_filter)
         if filter_tag:
             all_filter = self.filter_tags['filter'](all_filter)
@@ -803,23 +810,28 @@ class Protocol(object):
         'SERVER_NAME', 
         'SERVER_PORT'
     ]
-    valid_map_formats = [
-        "map", 
-        "json"
-    ]
-    wfs_maps = []
     #----------------------------------------------------------------------
     def __init__(self, url, logging, config=''):
         """
         Config file for geocoder:
         {
-            "map name": "url to wfs requests"(optionaly),
+            "debug": true|false,
+            "out_geom": null|"gml"|"wkt"
+            "map_formats":["map","json","maptemp"]
         }
         """
         # default protocol variables
         self.home_html = None
         self.logging = logging
-        self.proto_schema = {}
+        self.proto_schema = {
+            "geocoder": {
+                "test": lambda self, test_data: False,
+                "get": False,
+                "request": False,
+                "metadata": False,
+                "enable": False,
+                },
+        }
         self.proto_maps = {
             'geocoder': {
                 "request": self.request_geocoder_service,
@@ -829,9 +841,19 @@ class Protocol(object):
             }
         }
         # next
+        self.wfs_maps = []
         self.url = url
         self.api_url = u"{}/api?".format(url)
         # geocoder map default comands    
+        self.config = {
+            "debug": False,
+            "out_geom": None,
+            "map_formats": [
+                "map", 
+                "json", 
+                "maptemp", 
+            ],
+        }
         self.gc_map_com = {
             "GetCapabilites": "get_capabilities", 
             "GetInfo": "get_info", 
@@ -839,13 +861,13 @@ class Protocol(object):
             "GetPropperties": "get_properties",
         }
         self.geocoder_init(config)
-    
+
     def geocoder_init(self, config=''):
         # load config file
-        self.config = {}
         if os.path.isfile(config):
             try:
-                self.config = json.load()
+                with open(config) as file_:  
+                    conf_dict = json.load(file_)
             except Exception as err:
                 self.logging(
                     1, 
@@ -854,6 +876,8 @@ class Protocol(object):
                         err
                     )
                 )
+            else:
+                self.config.update(conf_dict)
         elif config:
             self.logging(
                 1, 
@@ -889,13 +913,19 @@ class Protocol(object):
                             my
                             for my
                             in out_maps["maps"]
-                            if out_maps["maps"][my]["format"] in self.valid_map_formats
+                            if out_maps["maps"][my]["format"] in self.config["map_formats"]
                         ]
         
         # load geocoser objs
         for test_map in valid_maps:
             try:
-                gc_obj = GeoCoder(url=self.url, map_name=test_map)
+                geocoder = GeoCoder
+                geocoder.out_geom = self.config["out_geom"]
+                gc_obj = geocoder(
+                    url=self.url, 
+                    map_name=test_map, 
+                    debug=self.config["debug"]
+                )
             except:
                 pass
             else:
@@ -905,6 +935,7 @@ class Protocol(object):
                     gc_map_name: {
                     "request": self.request_geocoder_map,
                     "content": gc_obj,
+                    "type": "geocoder",
                     "timestamp": 0,
                     "multi": False
                     }
@@ -945,14 +976,16 @@ class Protocol(object):
             )
         elif self.gc_map_com.has_key(env["QUERY_STRING"]):
             resp = json.dumps(
-                self.gc_map_com[env["QUERY_STRING"]](), 
+                mapdata.__class__.__dict__[
+                    self.gc_map_com[env["QUERY_STRING"]]
+                ](mapdata), 
                 ensure_ascii=False
             )
         else:
             try:
                 req = json.loads(urllib.unquote(env["QUERY_STRING"]))
                 resp = json.dumps(
-                    self.get_response(req), 
+                    mapdata.get_response(req), 
                     ensure_ascii=False
                 )
             except Exception as err:

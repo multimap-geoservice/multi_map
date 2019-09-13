@@ -223,6 +223,8 @@ class Protocol(object):
                 status = 400
             else:
                 status = 500
+        else:
+            status = 500
         
         out_response = (
             status, 

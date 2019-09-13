@@ -1,11 +1,17 @@
 {
     "configs":{
-        "multi_map.map_requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf"
+        "multi_map.map_requests.request_mapnik": "/home/oldbay/GIS/mapserver/debug/conf/ogcserver.conf",
+        "multi_map.map_requests.request_geocoder": "/home/oldbay/GIS/mapserver/debug/conf/geocoder.json"
     },
     "sources":[
         {
             "type": "fs",
-            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik/mapproxy",
+            "enable": true
+        }, 
+        {
+            "type": "fs",
+            "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik/astra-virt",
             "enable": true
         }, 
         {
@@ -15,9 +21,9 @@
         }, 
         {
             "type": "maptemp_fs",
-            "path": "/home/oldbay/GIS/mapserver/debug/rasters_src",
+            "path": "/home/oldbay/GIS/mapserver/debug/rasters_src_utf8",
             "ext": "tif",
-            "template": "/home/oldbay/GIS/mapserver/debug/rasters_src/raster.json",
+            "template": "/home/oldbay/GIS/mapserver/debug/conf/raster_template.json",
             "enable": true
         },
         {
