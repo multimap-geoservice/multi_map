@@ -1,3 +1,4 @@
 *.pyc
 map_pub
+wfs_geocoder
 bin/start.sh
