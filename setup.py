@@ -5,12 +5,13 @@ setup(
     version='0.4', 
     packages=[
         'multi_map',
-        'multi_map.requests', 
+        'multi_map.map_requests', 
     ],
     scripts=['bin/multi_map'], 
     install_requires=[
         'mapscript_publisher', 
         'ogcserver>=0.1.4',
+        'wfs_geocoder', 
         'psutil', 
         'daemon', 
         'requests', 

@@ -326,8 +326,11 @@ class MultiWEB(object):
         """
         if isinstance(map_name, str):
             map_name = u'{}'.format(map_name.decode('utf-8'))
+
         cont_format = "maptemp"
         if not self.serial_formats.has_key(cont_format):
+            return
+        elif not self.serial_formats[cont_format]["enable"]:
             return
         maptemp = kwargs['template']
         
@@ -421,8 +424,11 @@ class MultiWEB(object):
         """
         subserializator maptemp for pgsql source list
         """
+
         cont_format = "maptemp"
         if not self.serial_formats.has_key(cont_format):
+            return
+        elif not self.serial_formats[cont_format]["enable"]:
             return
         maptemp = kwargs['template']
         
@@ -457,7 +463,7 @@ class MultiWEB(object):
                     )
                     return cont_format, content
 
-    def full_serializer(self, replace=True):
+    def full_serializer(self, replace=True, map_reload=False, map_format=False):
         """
         Full serialization all sources map
         replase - replace maps if the names match
@@ -492,7 +498,7 @@ class MultiWEB(object):
             all_map_names = nam_uniq
         # load all names
         for map_name in all_map_names:
-            if not self.maps.has_key(map_name):
+            if not self.maps.has_key(map_name) or map_reload:
                 map_ = self.serializer(map_name)
                 if map_ and map_name not in self.invariable_name:
                     self.maps[map_name] = map_

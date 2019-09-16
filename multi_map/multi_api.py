@@ -107,7 +107,9 @@ class LightAPI(MultiWEB):
                 "obj": self.api_serialize,
                 "opts": {
                     "name": str,
+                    "format": str,
                     "replace": bool,
+                    "reload": bool,
                     },
                 },
             "timeout": {
@@ -318,10 +320,22 @@ class LightAPI(MultiWEB):
         return out
     
     def api_serialize(self, **kwargs):
+        
         if kwargs.has_key('replace'):
             replace = kwargs['replace']
         else:
             replace = True
+        
+        if kwargs.has_key('reload'):
+            map_reload = kwargs['reload']
+        else:
+            map_reload = False
+        
+        if kwargs.has_key('format'):
+            map_format = kwargs['format']
+        else:
+            map_format = False
+        
         if kwargs.has_key('name'):
             map_name = kwargs['name']
             if self.maps.has_key(map_name) and not replace:
@@ -345,7 +359,11 @@ class LightAPI(MultiWEB):
                         "result": False,
                     }
         else:
-            self.full_serializer(replace=replace)
+            self.full_serializer(
+                replace=replace, 
+                map_reload=map_reload,
+                map_format=map_format, 
+            )
             return {
                 "serialize": "full", 
                 "result": True,

@@ -155,11 +155,11 @@ class Protocol(object):
                 gc_map_name = u"geocoder/{}".format(test_map)
                 map_dict = {
                     gc_map_name: {
+                    "format": "geocoder",
                     "request": self.request_geocoder_map,
                     "content": gc_obj,
-                    "type": "geocoder",
                     "timestamp": 0,
-                    "multi": False
+                    "multi": True
                     }
                 }
                 self.proto_maps.update(map_dict)
