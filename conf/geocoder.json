@@ -1,4 +1,6 @@
 {
     "out_geom": "gml",
-    "map_formats":["json"]
+    "map_formats":["json"],
+    "map_sources":["postgres","mapserver-fs"]
+
 }

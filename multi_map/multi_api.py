@@ -418,7 +418,6 @@ class LightAPI(MultiWEB):
     def request_api(self, env, data):
         # find query string value
         query_string = urllib.unquote(env["QUERY_STRING"]).decode('utf-8').split('&')
-        print query_string
         query_method = query_string.pop(0)
         query_args = {}
         for sval in query_string:

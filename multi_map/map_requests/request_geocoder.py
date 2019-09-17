@@ -125,11 +125,32 @@ class Protocol(object):
                         api_resp.status_code
                     )
                 )
-            else:  
-                serialize = requests.get(
-                    "{}serialize".format(self.api_url)
-                )
-                if serialize.status_code == 200:
+            else:
+                statuses = []
+                if self.config["map_sources"]:
+                    for src in self.config["map_sources"]:
+                        serialize = requests.get(
+                            "{0}serialize&source={1}&reload=1".format(
+                                self.api_url, 
+                                src
+                            )
+                        )
+                        statuses.append(serialize.status_code)
+                if self.config["map_names"]:
+                    for name in self.config["map_names"]:
+                        serialize = requests.get(
+                            "{0}serialize&name={1}".format(
+                                self.api_url, 
+                                name
+                            )
+                        )
+                        statuses.append(serialize.status_code)
+                if not self.config["map_sources"] and not self.config["map_names"]:
+                    serialize = requests.get(
+                        "{}serialize".format(self.api_url)
+                    )
+                    statuses.append(serialize.status_code)
+                if 200 in statuses:
                     all_maps = requests.get(
                         "{}maps".format(self.api_url)
                     )
@@ -141,6 +162,10 @@ class Protocol(object):
                             in out_maps["maps"]
                             if out_maps["maps"][my]["format"] in self.config["map_formats"]
                         ]
+                else:
+                    raise Exception(
+                        u"ERROR: Module Geocoder is not Init: Serialization not complete"
+                    )
         
         # load geocoser objs
         for test_map in valid_maps:
