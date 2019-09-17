@@ -97,6 +97,7 @@ class MultiWEB(object):
         ------------------------------
         example file system:
         {
+            "label": "label name" (optionaly for serialization)
             "type": "fs"
             "ext": [] json|xml|map|or any|or not
             "path": "/path/to/maps"
@@ -104,6 +105,7 @@ class MultiWEB(object):
         ------------------------------
         example database:
         {
+            "label": "label name" (optionaly for serialization)
             "type": "pgsql"(while only)
             "connect": {
                 "host": localhost,
@@ -463,14 +465,30 @@ class MultiWEB(object):
                     )
                     return cont_format, content
 
-    def full_serializer(self, replace=True, map_reload=False, map_format=False):
+    def full_serializer(self, replace=True, map_reload=False, source=None):
         """
         Full serialization all sources map
+        kwargs:
+        -------
         replase - replace maps if the names match
+        map_reload - reload maps
+        source - serialize source by index (int) or by label (str,unicode)
         """
-        # map names
+        if source is not None:
+            srcs = []
+            if isinstance(source, int):
+                if source + 1 <= len(self.serial_src):
+                    srcs = [self.serial_src[source]]
+            elif isinstance(source, (str, unicode)):
+                labels = [my.get("label", None) for my in self.serial_src]
+                if source in labels:
+                    index = labels.index(source)
+                    srcs = [self.serial_src[index]]
+        else:
+            srcs = self.serial_src
+            
         all_map_names = []
-        for src in self.serial_src:
+        for src in srcs:
             src_type = src['type']
             valid = [
                 isinstance(src[key], self.serial_tps[src_type][key]) 
@@ -503,7 +521,7 @@ class MultiWEB(object):
                 if map_ and map_name not in self.invariable_name:
                     self.maps[map_name] = map_
 
-    def serializer(self, map_name):
+    def serializer(self, map_name, timestamp=True):
         """
         serialization map from name of self.serial_src
         """
@@ -523,11 +541,15 @@ class MultiWEB(object):
                     cont_format, content = out_subserial
                     content = self.serial_formats[cont_format]['get'](map_name, content)
                     if content is not None:
+                        if timestamp:
+                            timestamp = int(time.time())
+                        else:
+                            timestamp = 0
                         return {
                             "format": cont_format,
                             "request": self.serial_formats[cont_format]['request'],
                             "content": content,
-                            "timestamp": int(time.time()),
+                            "timestamp": timestamp,
                             "multi": True,
                         }
 

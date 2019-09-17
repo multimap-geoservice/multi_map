@@ -6,6 +6,7 @@ import time
 import ast
 import copy
 import json
+import urllib
 import requests
 from time import sleep
 from multiprocessing import Process
@@ -99,17 +100,21 @@ class LightAPI(MultiWEB):
             "maps": {
                 "obj": self.api_maps,
                 "opts": {
-                    "name": str,
+                    "name": unicode,
                     "del": bool,
                     },
                 },
             "serialize": {
                 "obj": self.api_serialize,
                 "opts": {
-                    "name": str,
-                    "format": str,
+                    "name": unicode,
+                    "timestamp": bool,
                     "replace": bool,
                     "reload": bool,
+                    "source": [
+                        int, 
+                        unicode
+                        ],
                     },
                 },
             "timeout": {
@@ -321,6 +326,13 @@ class LightAPI(MultiWEB):
     
     def api_serialize(self, **kwargs):
         
+        # for one map serializer
+        if kwargs.has_key('timestamp'):
+            timestamp = kwargs['timestamp']
+        else:
+            timestamp = True
+
+        # for all map serializer
         if kwargs.has_key('replace'):
             replace = kwargs['replace']
         else:
@@ -331,22 +343,16 @@ class LightAPI(MultiWEB):
         else:
             map_reload = False
         
-        if kwargs.has_key('format'):
-            map_format = kwargs['format']
+        if kwargs.has_key('source'):
+            source = kwargs['source']
         else:
-            map_format = False
-        
+            source = None
+
         if kwargs.has_key('name'):
             map_name = kwargs['name']
-            if self.maps.has_key(map_name) and not replace:
-                return {
-                    "serialize": map_name,
-                    "error": "replace is not allow",
-                    "result": False,
-                }
-            else:
-                map_ = self.serializer(map_name)
-                if map_ and map_name not in self.invariable_name:
+            if map_name not in self.invariable_name:
+                map_ = self.serializer(map_name, timestamp)
+                if map_:
                     self.maps[map_name] = map_
                     return {
                         "serialize": map_name, 
@@ -358,11 +364,30 @@ class LightAPI(MultiWEB):
                         "error": "Map is not found",
                         "result": False,
                     }
+            else:
+                return {
+                    "serialize": map_name,
+                    "error": "Map name is forbinden!",
+                    "result": False,
+                }
         else:
+            if isinstance(source, int):
+                if source + 1 > len(self.serial_src):
+                    return {
+                        'result': False,
+                        'error': "Source {} Index too large".format(source),
+                    }
+            if isinstance(source, (str, unicode)):
+                labels = [my.get("label", None) for my in self.serial_src]
+                if source not in labels:
+                    return {
+                        'result': False,
+                        'error': "Source label '{}' not found".format(source), 
+                    }
             self.full_serializer(
                 replace=replace, 
                 map_reload=map_reload,
-                map_format=map_format, 
+                source=source, 
             )
             return {
                 "serialize": "full", 
@@ -392,7 +417,8 @@ class LightAPI(MultiWEB):
     
     def request_api(self, env, data):
         # find query string value
-        query_string = env['QUERY_STRING'].split('&')
+        query_string = urllib.unquote(env["QUERY_STRING"]).decode('utf-8').split('&')
+        print query_string
         query_method = query_string.pop(0)
         query_args = {}
         for sval in query_string:

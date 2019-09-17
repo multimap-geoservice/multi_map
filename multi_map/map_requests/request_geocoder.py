@@ -40,6 +40,8 @@ class Protocol(object):
             "debug": true|false,
             "out_geom": null|"gml"|"wkt"
             "map_formats":["map","json","maptemp"]
+            "map_sources":[] - list labels or/and indexes sources for geocoding
+            "map_names":[] - list map names for geocoding
         }
         """
         # default protocol variables
@@ -75,6 +77,8 @@ class Protocol(object):
                 "json", 
                 "maptemp", 
             ],
+            "map_sources": None,
+            "map_names": None,
         }
         self.gc_map_com = {
             "GetCapabilites": "get_capabilities", 
@@ -163,10 +167,22 @@ class Protocol(object):
                     }
                 }
                 self.proto_maps.update(map_dict)
-                self.logging(
-                    3, 
-                    u"INFO: Map '{}' append to Geocoder".format(test_map)
+                post_serialize = requests.get(
+                    u"{0}serialize&name={1}&timestamp=0".format(
+                        self.api_url, 
+                        test_map
+                    )
                 )
+                if post_serialize.status_code == 200:
+                    self.logging(
+                        3, 
+                        u"INFO: Map '{}' append to Geocoder".format(test_map)
+                    )
+                else:
+                    self.logging(
+                        1, 
+                        u"WARNING: Map '{}' post-serialize is fail".format(test_map)
+                    )
         
     def request_geocoder_service(self, env, mapdata, que=None):
         resp = json.dumps(
