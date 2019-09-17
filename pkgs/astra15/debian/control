@@ -8,6 +8,7 @@ Build-Depends: debhelper,
                python-setuptools,
                python-mapscript-publisher,
                python-ogcserver,
+               python-wfs-geocoder,
                python-psutil,
                python-daemon,
                python-requests
@@ -20,6 +21,7 @@ Section: python
 Depends: ${misc:Depends},
          python-mapscript-publisher,
          python-ogcserver,
+         python-wfs-geocoder,
          python-psutil,
          python-daemon,
          python-requests
