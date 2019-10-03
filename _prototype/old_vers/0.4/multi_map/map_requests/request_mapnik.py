@@ -11,6 +11,8 @@ try:
 except ImportError:
     from cgi import parse_qs
 
+from mapnik import mapnik_version
+
 from ogcserver.common import Version
 from ogcserver.WMS import BaseWMSFactory
 from ogcserver.configparser import SafeConfigParser
@@ -58,6 +60,7 @@ class Protocol(object):
             self.debug = int(ogcconf.get('server', 'debug'))
         else:
             self.debug = 0
+        self.mapnik_ver = mapnik_version()
             
     def is_xml(self, test_cont):
         try:
@@ -97,14 +100,19 @@ class Protocol(object):
         """
         get map on mapnik xml
         """
-        # serialize string
-        return content  
+        if self.mapnik_ver >= 300000:
+            return self.ogcserver_constructor(content)  # serialize mapnik object
+        else:
+            return content  # serialize string
     
     def request_mapnik(self, env, mapdata, que=None):
         """
         render on mapnik request
         """
-        map_obj = self.ogcserver_constructor(mapdata)
+        if self.mapnik_ver >= 300000:
+            map_obj = mapdata
+        else:
+            map_obj = self.ogcserver_constructor(mapdata)
         reqparams = {}
         base = True
         for key, value in parse_qs(env['QUERY_STRING'], True).items():
@@ -186,7 +194,10 @@ class Protocol(object):
             que.put(out_response)
 
     def get_metadata(self, map_cont):
-        map_obj = self.ogcserver_constructor(map_cont)
+        if self.mapnik_ver >= 300000:
+            map_obj = map_cont
+        else:
+            map_obj = self.ogcserver_constructor(map_cont)
         return {
             "layers": [my for my in map_obj.layers], 
             "aggregatestyles": map_obj.aggregatestyles, 
