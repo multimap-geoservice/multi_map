@@ -1,6 +1,7 @@
 {
     "out_geom": "gml",
-    "map_formats":["json"],
-    "map_sources":["postgres","mapserver-fs"]
+    "wfs_timeout": 1000,
+    "map_formats":["maptemp"],
+    "map_sources":["geodb_sxf"]
 
 }

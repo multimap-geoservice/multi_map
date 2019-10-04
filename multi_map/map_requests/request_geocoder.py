@@ -39,6 +39,7 @@ class Protocol(object):
         {
             "debug": true|false,
             "out_geom": null|"gml"|"wkt"
+            "wfs_timeout": sec(int)"
             "map_formats":["map","json","maptemp"]
             "map_sources":[] - list labels or/and indexes sources for geocoding
             "map_names":[] - list map names for geocoding
@@ -72,6 +73,7 @@ class Protocol(object):
         self.config = {
             "debug": False,
             "out_geom": None,
+            "wfs_timeout": None,
             "map_formats": [
                 "map", 
                 "json", 
@@ -172,6 +174,7 @@ class Protocol(object):
             try:
                 geocoder = GeoCoder
                 geocoder.out_geom = self.config["out_geom"]
+                geocoder.wfs_timeout = self.config["wfs_timeout"]
                 gc_obj = geocoder(
                     url=self.url, 
                     map_name=test_map, 

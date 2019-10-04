@@ -5,16 +5,19 @@
     },
     "sources":[
         {
+            "label": "mapnik-mapproxy-fs",
             "type": "fs",
             "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik/mapproxy",
             "enable": true
         }, 
         {
+            "label": "mapnik-astra-virt-fs",
             "type": "fs",
             "path": "/home/oldbay/GIS/mapserver/debug/all_maps/mapnik/astra-virt",
             "enable": true
         }, 
         {
+            "label": "mapserver-fs",
             "type": "fs",
             "path": "/home/oldbay/GIS/mapserver/debug/all_maps/fs",
             "enable": true
@@ -27,6 +30,7 @@
             "enable": true
         },
         {
+            "label": "postgres",
             "type": "pgsql", 
             "connect": {
                 "host": "william",
@@ -40,6 +44,35 @@
                 "from maps"
             ],
             "enable": true
+        },
+        {
+	    "label": "geodb_sxf",
+            "type": "maptemp_pgsql", 
+            "connect": {
+                "host": "mapproxy",
+                "dbname": "geodb",
+                "user": "innouser",
+                "password": "innopass"
+            }, 
+            "query": [
+		"select find_layer.name as map_name,",
+		"    array_to_string(",
+		"        array(",
+		"            select source.id as source_id",
+		"            from layer,cache,cached_source,source",
+		"            where layer.name = find_layer.name",
+		"            and cache.layer_id = layer.id",
+		"            and cached_source.cache_id = cache.id",
+		"            and cached_source.source_id = source.id",
+		"            and cached_source.state = 'cached'",
+		"        ),','",
+		"    ) as map_cont",
+		"from layer as find_layer",
+		"where find_layer.source_type='sxf'"
+            ],
+            "template": "/home/oldbay/GIS/mapserver/debug/conf/geodb_sxf_template.json",
+            "enable": true
         }
+
     ]
 }
