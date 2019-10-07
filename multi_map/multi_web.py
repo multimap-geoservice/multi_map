@@ -118,11 +118,14 @@ class MultiWEB(object):
         }
         "query": select two column as: map_name, map_cont
         ----------------------------
-        For tmp(fs|pgsql) add key: 
+        For maptemp_(fs|pgsql) add key: 
             'template' (mapscrip_publisher only) -
                 str, unicode - path to mapscript_publisher template of mapscript
                 dict - this mapscript_publisher template of mapscript
             'ext' - file extension for 'fs' source geospatial file (gif, shp, and every)
+            'map_cont' - bool file content for 'fs' -
+                false(default) - file path to template['VARS']['data']
+                true - file content to template['VARS']['data']
             
         This mapscript_publisher template only for one file - specify in VARS[data]
         """
@@ -347,6 +350,10 @@ class MultiWEB(object):
                     test_ = u"{0}.{1}".format(map_name, ext)
                     if file_ == test_:
                         mapsrc = u"{0}/{1}".format(dir_, file_)
+                        if kwargs.get('map_cont', False):
+                            mapsrc_filename = mapsrc
+                            with open(mapsrc_filename, 'r') as f_:
+                                mapsrc = f_.read()
                         content = self._create_maptemp_content(mapsrc, maptemp)
                         if content:
                             self.logging(

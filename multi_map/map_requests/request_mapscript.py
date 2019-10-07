@@ -181,7 +181,7 @@ class Protocol(object):
                 content.web.metadata.set("wms_onlineresource", map_url)
                 content.web.metadata.set("wfs_onlineresource", map_url)
                 return content
-    
+   
     def request_mapscript(self, env, mapdata, que=None):
         """
         render on mapserver mapscript request

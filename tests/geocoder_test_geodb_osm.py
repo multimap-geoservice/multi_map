@@ -22,7 +22,8 @@ def get_response(request_):
         )
     json_format(
         requests.get(
-            u"http://localhost:3007/geocoder/ОСМ_RU-SPE?{}".format(
+            #u"http://localhost:3007/geocoder/ОСМ_RU-SPE?{}".format(
+            u"http://localhost:3007/geocoder/OSM_RU?{}".format(
                 request_.decode('utf-8')
             )
         ).json()
@@ -36,25 +37,25 @@ if __name__ == "__main__":
         "layer_property": [
             "type", 
             "name",
-            "osm_id", 
+            "id", 
             #"msGeometry", 
         ],
-        "layers": {
-            "buildings": None,
-            "landuse": {
-                "filter": {
-                    "type": {
-                        "=": "military",
-                    },
-                },
-                "layer_property": [
+        #"layers": {
+            #"buildings": None,
+            #"landuse": {
+                #"filter": {
+                    #"type": {
+                        #"=": "military",
+                    #},
+                #},
+                #"layer_property": [
                     #"type", 
-                    "name",
-                    #"osm_id", 
-                    "msGeometry", 
-                ],
-            },
-        },
+                    #"name",
+                    #"id", 
+                    #"msGeometry", 
+                #],
+            #},
+        #},
         "filter": {
             "or": [
                 {
@@ -62,9 +63,9 @@ if __name__ == "__main__":
                         "name": {
                             "like": "*Пет*",
                         },
-                        "type": {
-                            "=": "hotel",
-                        },
+                        #"type": {
+                            #"=": "hotel",
+                        #},
                     #},
                 }, 
                 {
@@ -72,19 +73,19 @@ if __name__ == "__main__":
                         "name": {
                             "like": "*Бал*",
                         },
-                        "type": {
-                            "=": "hotel",
-                        },
+                        #"type": {
+                            #"=": "hotel",
+                        #},
                     #},
                 }, 
             ],
         }
     }
     
-    print "*" * 30
-    print "Metadata"
-    print "*" * 30
-    get_response(request_)
+    #print "*" * 30
+    #print "Metadata"
+    #print "*" * 30
+    #get_response(request_)
 
     
     request_ = {
@@ -92,15 +93,15 @@ if __name__ == "__main__":
         #"epsg_code": 3857,
         "max_features": 1,
         "layer_property": [
-            #"type", 
+            "type", 
             "name",
-            #"osm_id", 
-            "msGeometry", 
+            "id", 
+            #"msGeometry", 
         ],
-        "layers": {
-            "buildings": None,
-            "landuse": None, 
-        }, 
+        #"layers": {
+            #"buildings": None,
+            #"landuse": None, 
+        #}, 
         "filter": {
             "name": {
                 "null": None,
@@ -124,10 +125,10 @@ if __name__ == "__main__":
         }, 
     }
         
-    #print "*" * 30
-    #print "Bbox"
-    #print "*" * 30
-    #get_response(request_)
+    print "*" * 30
+    print "Bbox"
+    print "*" * 30
+    get_response(request_)
 
     request_ = {
         "epsg_code": 900913,
@@ -136,9 +137,15 @@ if __name__ == "__main__":
             "msGeometry"
         ],
         "max_features": 10,
-        "layers": {
-            "buildings": None,
-            },
+        "layer_property": [
+            "type", 
+            "name",
+            "id", 
+            #"msGeometry", 
+        ],
+        #"layers": {
+            #"buildings": None,
+            #},
         "filter": {
             "coord1": {
                 "buffer": {
@@ -159,10 +166,10 @@ if __name__ == "__main__":
             }, 
         }, 
     }
-    #print "*" * 30
-    #print "HZ1"
-    #print "*" * 30
-    #get_response(request_)
+    print "*" * 30
+    print "Buffer"
+    print "*" * 30
+    get_response(request_)
     
     request_ = {
         "max_features": 10,
