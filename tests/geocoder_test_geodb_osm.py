@@ -33,7 +33,7 @@ def get_response(request_):
 if __name__ == "__main__":
     request_ = {
         "epsg_code": 900913,
-        "max_features": 1,
+        "max_features": 10,
         "layer_property": [
             "type", 
             "name",
@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 {
                     #"and": {
                         "name": {
-                            "like": "*Пет*",
+                            "like": "*пет*",
                         },
                         #"type": {
                             #"=": "hotel",
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                 {
                     #"and": {
                         "name": {
-                            "like": "*Бал*",
+                            "like": "*бал*",
                         },
                         #"type": {
                             #"=": "hotel",
@@ -125,10 +125,10 @@ if __name__ == "__main__":
         }, 
     }
         
-    print "*" * 30
-    print "Bbox"
-    print "*" * 30
-    get_response(request_)
+    #print "*" * 30
+    #print "Bbox"
+    #print "*" * 30
+    #get_response(request_)
 
     request_ = {
         "epsg_code": 900913,
@@ -166,47 +166,45 @@ if __name__ == "__main__":
             }, 
         }, 
     }
-    print "*" * 30
-    print "Buffer"
-    print "*" * 30
-    get_response(request_)
-    
-    request_ = {
-        "max_features": 10,
-        "filter": {
-            #"and": {
-                "name": {
-                    #"like": "*Сев*", 
-                    "bbox": {
-                        "coord": [
-                            59.97,
-                            30.21,
-                            59.98,
-                            30.22
-                        ],
-                        "epsg_code": 4326
-                    },
-                    "buffer": {
-                        "radius": 2000.0,
-                        "epsg_code": 4326,
-                        "coord": [
-                            59.97,
-                            30.21
-                        ],
-                        "epsg_code_measure": 3857
-                    }
-                #}
-            }
-        },
-        #"layer_property": [
-            #"name"
-        #]
-    }    
-
     #print "*" * 30
-    #print "HZ2"
+    #print "Buffer"
     #print "*" * 30
     #get_response(request_)
+    
+    request_ = {
+        "max_features": 1,
+        "layer_property": [
+            "type", 
+            "name",
+            "id", 
+            "msGeometry", 
+        ],
+        "filter": {
+            "geom": {
+                "bbox": {
+                    #"coord": [
+                        #59.97111801186481728,
+                        #30.21720754623224181,
+                        #59.97569926211409097,
+                        #30.22404557000332304, 
+                    #],
+                    #"epsg_code": 4326,
+                    "coord": [
+                        -20037508.34,
+                        4507843.48159565,
+                        20037508.34,
+                        19593253.9008964, 
+                    ],
+                    "epsg_code": 3857,
+                },
+            }
+        },
+    }    
+
+    print "*" * 30
+    print "monotest"
+    print "*" * 30
+    get_response(request_)
     
     #print "*" * 30
     #print "GetCapabilites"
