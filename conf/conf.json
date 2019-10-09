@@ -72,6 +72,15 @@
             ],
             "template": "/home/oldbay/GIS/mapserver/debug/conf/geodb_sxf_template.json",
             "enable": true
+        },
+        {
+            "label": "geodb_osm",
+            "type": "maptemp_fs",
+            "ext": "txt",
+            "map_cont": true,
+            "path": "/home/oldbay/GIS/mapserver/debug/conf/OSM",
+            "template": "/home/oldbay/GIS/mapserver/debug/conf/geodb_osm_template.json",
+            "enable": true
         }
 
     ]

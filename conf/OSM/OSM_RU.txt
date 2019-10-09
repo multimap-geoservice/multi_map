@@ -1,0 +1,1 @@
+host=william dbname=osm_mbtile user=gis password=gis port=5432

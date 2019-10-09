@@ -2,6 +2,5 @@
     "out_geom": "gml",
     "wfs_timeout": 1000,
     "map_formats":["maptemp"],
-    "map_sources":["geodb_sxf"]
-
+    "map_sources":["geodb_osm","geodb_sxf"]
 }
