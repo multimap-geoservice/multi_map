@@ -23,7 +23,8 @@ def get_response(request_):
     json_format(
         requests.get(
             #u"http://localhost:3007/geocoder/ОСМ_RU-SPE?{}".format(
-            u"http://localhost:3007/geocoder/OSM_RU?{}".format(
+            #u"http://localhost:3007/geocoder/OSM_RU?{}".format(
+            u"http://localhost:3007/geocoder/central_russia_sxf?{}".format(
                 request_.decode('utf-8')
             )
         ).json()
@@ -33,7 +34,7 @@ def get_response(request_):
 if __name__ == "__main__":
     request_ = {
         "epsg_code": 900913,
-        "max_features": 10,
+        #"max_features": 10,
         "layer_property": [
             "type", 
             "name",
@@ -82,16 +83,16 @@ if __name__ == "__main__":
         }
     }
     
-    #print "*" * 30
-    #print "Metadata"
-    #print "*" * 30
-    #get_response(request_)
+    print "*" * 30
+    print "Metadata"
+    print "*" * 30
+    get_response(request_)
 
     
     request_ = {
         "epsg_code": 900913,
         #"epsg_code": 3857,
-        "max_features": 1,
+        #"max_features": 1,
         "layer_property": [
             "type", 
             "name",
@@ -201,10 +202,10 @@ if __name__ == "__main__":
         },
     }    
 
-    print "*" * 30
-    print "monotest"
-    print "*" * 30
-    get_response(request_)
+    #print "*" * 30
+    #print "monotest"
+    #print "*" * 30
+    #get_response(request_)
     
     #print "*" * 30
     #print "GetCapabilites"
